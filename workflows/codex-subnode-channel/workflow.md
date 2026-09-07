@@ -9,7 +9,7 @@
 3. **A `subnode` is explicit independent evidence** — use one only when the user expressly needs independently reviewable analysis, design, audit, review, counterargument, or verification. It is never the automatic implementation or checking path.
 4. **Artifacts are durable** — the coordinator creates an immutable `brief.json`; the subnode appends its `worklog.md` and writes one pending-review `report.json` under the active task.
 5. **Completion is not acceptance** — the coordinator validates the report, rechecks material sources and protected targets, then records `accepted`, `rejected`, or `deferred` with its reason.
-6. **Channel is the lifecycle surface** — use its native create, spawn, send, and wait protocol. Do not poll, create a second waiter, use terminal JSON as the report, or add automatic retry/scheduling.
+6. **Channel is the lifecycle surface** — use its native create, spawn, send, and wait protocol. Wait for events rather than high-frequency polling; do not create a second waiter, use terminal JSON as the report, or add automatic retry/scheduling.
 
 This workflow assumes Codex's default `codex.dispatch_mode: inline`. Do not
 select `auto` or `sub-agent` for this workflow: those modes seed native-agent
