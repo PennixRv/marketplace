@@ -31,6 +31,23 @@ Create a task only after the user has approved task creation. A task may be
 PRD-only when lightweight; complex work also needs `design.md` and
 `implement.md` before it starts.
 
+When research, audit, or review establishes task-relevant verified facts,
+candidates, uncertainty, or a decision basis that should persist, use
+`trellis-research-record` to write the conclusion with its evidence in the
+active task. Do not create a record for routine navigation or transient output.
+
+### Semantic RecoveryBrief
+
+Trellis task artifacts remain the semantic record. Use the low-level
+`ctx_recovery_brief` provider only after task start, after `trellis-check`
+confirms a material recorded change, immediately before an explicit formal
+handoff or user-requested pause/finish, or on an explicit inspect, repair, or
+force-refresh request. Derive any CAS update from verified task evidence; do
+not write one for ordinary edits, tests, diffs, compaction, resume, or a
+subnode event/report. For an explicitly user-requested formal handoff, a valid
+task-local Brief is evidence only; receipt validation and new-session task
+restoration remain authoritative.
+
 ### Independent Evidence
 
 For an explicit independent-evidence request, first load `trellis-channel` and
