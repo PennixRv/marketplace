@@ -73,7 +73,7 @@ python3 ./.trellis/scripts/task.py create-pr [name] [--dry-run]
 
 > Run `python3 ./.trellis/scripts/task.py --help` to see the authoritative, up-to-date list.
 
-**Current-task mechanism**: `task.py create` creates the task directory and (when session identity is available) auto-sets the per-session active-task pointer so the planning breadcrumb fires immediately. `task.py start` writes the same pointer (idempotent if already set) and flips `task.json.status` from `planning` to `in_progress`. State is stored under `.trellis/.runtime/sessions/`. If no context key is available from hook input, `TRELLIS_CONTEXT_ID`, or a platform-native session environment variable, there is no active task and `task.py start` fails with a session identity hint. `task.py finish` deletes the current session file (status unchanged). `task.py archive <task>` writes `status=completed`, moves the directory to `archive/`, and deletes any runtime session files that still point at the archived task.
+**Current-task mechanism**: `task.py create` creates the task directory and (when session identity is available) auto-sets the per-session active-task pointer so the planning breadcrumb fires immediately. `task.py start` writes the same pointer (idempotent if already set) and flips `task.json.status` from `planning` to `in_progress`. State is stored under `.trellis/.runtime/sessions/`. If no context key is available from hook input, `TRELLIS_CONTEXT_ID`, or a platform-native session environment variable, `task.py start` fails with a session identity hint because it cannot persist a session pointer; read-only context may still project one unique developer-owned resumable task. `task.py finish` deletes the current session file (status unchanged). `task.py archive <task>` writes `status=completed`, moves the directory to `archive/`, and deletes any runtime session files that still point at the archived task.
 
 ### Workspace System
 
@@ -144,14 +144,14 @@ python3 ./.trellis/scripts/get_context.py --mode phase --step <X.Y>  # detailed 
 ## Phase Index
 
 ```
-Phase 1: Plan    → classify, get task-creation consent, then write planning artifacts
+Phase 1: Plan    → classify, then create planning artifacts for work that needs a task
 Phase 2: Execute → implement only after task status is in_progress; use one red test → green implementation → refactor slice per behavior
 Phase 3: Finish  → verify, update spec, commit, and wrap up
 ```
 
 ### Request Triage
 
-- Simple conversation or small task: ask only whether this turn should create a Trellis task. If the user says no, skip Trellis for this session.
+- Direct small work: for a clearly bounded, single-surface operation with an immediate verification path, proceed without creating a Trellis task. Apply normal safety rules. If discovery expands the scope or reveals a design, ownership, release, or durable-record need, stop and create a task before continuing.
 - Complex task: ask whether you may create a Trellis task and enter planning. If the user says no, do not do broad inline implementation; explain, clarify scope, or suggest a smaller split.
 - User approval to create a task is not approval to start implementation. Planning still happens first.
 
@@ -174,8 +174,8 @@ Create new children with `task.py create "<title>" --slug <name> --parent <paren
 <!-- Per-turn breadcrumb: shown when there is no active task (before Phase 1) -->
 
 [workflow-state:no_task]
-No active task. First classify the current turn and ask for task-creation consent before creating any Trellis task.
-Simple conversation / small task: ask only whether this turn should create a Trellis task. If the user says no, skip Trellis for this session.
+No active task. First classify the current turn. Direct small work with a clear single owner and immediate verification may proceed without a Trellis task under normal safety rules.
+If scope expands or requires design, ownership, release, credentials, or a durable record, create a Trellis task before continuing.
 Complex task: ask the user if you can create a Trellis task and enter the planning phase. If the user says no, explain, clarify scope, or suggest a smaller split.
 [/workflow-state:no_task]
 
@@ -677,7 +677,7 @@ This section is for developers who want to modify the Trellis workflow itself. A
 ### Changing what a step means
 
 Edit the corresponding step's walkthrough body in the Phase 1 / 2 / 3 sections above. Critical invariants:
-- No active task must triage first and ask for task-creation consent before creating a Trellis task.
+- No active task must triage first; direct small work may proceed only when bounded, single-surface, and immediately verifiable, otherwise create a Trellis task first.
 - Planning must distinguish lightweight PRD-only tasks from complex tasks that require `prd.md`, `design.md`, and `implement.md` before start.
 - Every required execution path must keep the Phase 3.4 commit reminder reachable before `/trellis:finish-work`.
 

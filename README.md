@@ -17,7 +17,7 @@ marketplace/
 ### Install via npx skills
 
 ```bash
-npx skills add mindfold-ai/Trellis/marketplace
+npx skills add PennixRv/marketplace
 ```
 
 ### Manual Installation

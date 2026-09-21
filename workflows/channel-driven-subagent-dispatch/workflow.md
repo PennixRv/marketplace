@@ -69,14 +69,14 @@ Stable worker handles:
 ## Phase Index
 
 ```
-Phase 1: Plan    -> classify, get task-creation consent, then write planning artifacts
+Phase 1: Plan    -> classify, then create planning artifacts for work that needs a task
 Phase 2: Execute -> implement/check through trellis channel workers
 Phase 3: Finish  -> verify, update spec, commit, and wrap up
 ```
 
 ### Request Triage
 
-- Simple conversation or small task: ask only whether this turn should create a Trellis task. If the user says no, skip Trellis for this session.
+- Direct small work: for a clearly bounded, single-surface operation with an immediate verification path, proceed without creating a Trellis task or Channel worker. Apply normal safety rules. If discovery expands the scope or reveals a design, ownership, release, or durable-record need, stop and create a task before continuing.
 - Complex task: ask whether you may create a Trellis task and enter planning. If the user says no, do not do broad inline implementation.
 - User approval to create a task is not approval to start implementation. Implementation waits until artifacts are reviewed and `task.py start` has run.
 
@@ -94,8 +94,8 @@ Lightweight tasks may be PRD-only. Complex tasks must have `prd.md`, `design.md`
 Use a parent task when one request contains several independently verifiable deliverables. Child tasks own deliverables that can be planned, implemented, checked, and archived independently. Parent/child structure is not a dependency system; dependencies must be written in the child `prd.md` / `implement.md`.
 
 [workflow-state:no_task]
-No active task. First classify the current turn and ask for task-creation consent before creating any Trellis task.
-Simple conversation / small task: ask only whether this turn should create a Trellis task. If the user says no, skip Trellis for this session.
+No active task. First classify the current turn. Direct small work with a clear single owner and immediate verification may proceed without a Trellis task or Channel worker under normal safety rules.
+If scope expands or requires design, ownership, release, credentials, or a durable record, create a Trellis task before continuing.
 Complex task: ask the user if you can create a Trellis task and enter the planning phase. If the user says no, explain, clarify scope, or suggest a smaller split.
 [/workflow-state:no_task]
 

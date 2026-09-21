@@ -66,6 +66,14 @@
       "tags": ["workflow", "tdd", "testing"]
     },
     {
+      "id": "codex-subnode-channel",
+      "type": "workflow",
+      "name": "Codex Subnode Channel",
+      "description": "Codex-first Trellis workflow: main-session delivery by default, with explicit Channel subnodes for durable independent evidence",
+      "path": "workflows/codex-subnode-channel/workflow.md",
+      "tags": ["workflow", "codex", "channel", "subnode", "evidence"]
+    },
+    {
       "id": "channel-driven-subagent-dispatch",
       "type": "workflow",
       "name": "Channel-Driven Sub-Agent Dispatch",
