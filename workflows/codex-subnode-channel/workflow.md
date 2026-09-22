@@ -10,6 +10,7 @@
 4. **Artifacts are durable** — the coordinator creates an immutable `brief.json`; the subnode appends its `worklog.md` and writes one pending-review `report.json` under the active task.
 5. **Completion is not acceptance** — the coordinator validates the report, rechecks material sources and protected targets, then records `accepted`, `rejected`, or `deferred` with its reason.
 6. **Channel is the lifecycle surface** — use its native create, spawn, send, and wait protocol. Wait for events rather than high-frequency polling; do not create a second waiter, use terminal JSON as the report, or add automatic retry/scheduling.
+7. **Evidence is unit-sized** — split read-heavy main-session or subnode work into independently useful evidence units when one bounded session cannot persist a conclusion. Each unit records its scope, minimal evidence, destination, stop condition, conclusion or blocker, unknowns, and recovery point before the next unit.
 
 This workflow assumes Codex's default `codex.dispatch_mode: inline`. Do not
 select `auto` or `sub-agent` for this workflow: those modes seed native-agent
@@ -39,6 +40,12 @@ candidates, uncertainty, or a decision basis that should persist, use
 `trellis-research-record` to write the conclusion with its evidence in the
 active task. Do not create a record for routine navigation or transient output.
 
+For ordinary main-session research, keep each evidence unit small enough for one
+normal context window without inventing an exact token or time limit. Create a
+child task only when the unit has an independent owner, lifecycle, and acceptance
+contract. A subnode is an explicit independent-evidence choice, not a way to
+offload every long read.
+
 ### Semantic RecoveryBrief
 
 Trellis task artifacts remain the semantic record. The low-level
@@ -64,7 +71,10 @@ The subnode may inspect the necessary current project, external sources, and
 internet evidence. It may write only its assigned `worklog.md` and
 `report.json`; it must not change protected targets, task facts, Git state, or
 worker lifecycle. The final Channel message is a short status and report path,
-not the report payload.
+not the report payload. Reports use schema version 2 with one scope assessment
+per assigned scope, evidence-linked structured findings, typed notes, and
+worklog checkpoints; validator concerns remain coordinator follow-up, never
+acceptance.
 
 Use `workspace_note.py` only for a durable cross-task observation, decision,
 open question, or blocker. It is separate from task and subnode evidence.
@@ -139,6 +149,15 @@ Resolve only unknowns that can change scope, risk, modification path, or
 acceptance. Keep alternatives as alternatives until the user selects one or
 evidence justifies a decision.
 
+Before the final planning summary, run one Planning Seal closure pass. Reconcile
+task metadata, PRD, design, implementation plan, research, decision records, and
+manifests; lock actual targets and branches, dependencies, release, validation,
+rollback, dynamic-fact dispositions, replan triggers, and every material decision
+to an owner and outcome. No static `TBD`, `TODO`, `decision-needed`, unowned
+option, unspecified branch, open implementation path, validation gap, or
+conditional acceptance may remain. A material discovery returns the task to
+planning and invalidates the seal.
+
 #### 1.2 Research `[optional · repeatable]`
 
 Perform ordinary local and external research in the main session and write
@@ -165,7 +184,8 @@ complete PRD; a complex task also needs its design and implementation plan.
 Before Phase 2, ensure that the modification target, acceptance criteria,
 validation commands, and known risks are explicit. For a planned subnode,
 ensure the question is independent and bounded rather than a proxy for normal
-implementation or review.
+implementation or review. Confirm the Planning Seal is recorded before task
+activation.
 
 ---
 
