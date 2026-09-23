@@ -92,6 +92,8 @@ Phase 3: Finish  -> verify, retain conclusions, update specs, commit, and wrap u
 ### Request Triage
 
 - Direct small work: for a clearly bounded, single-surface operation with an immediate verification path, proceed in the main session without a Trellis task or subnode. Apply normal safety rules. If discovery expands the scope or reveals a design, ownership, release, or durable-record need, stop and create a task before continuing.
+- `analysis_only` is eligible only when `task.json.meta.delivery_mode = "analysis_only"` exactly and the PRD defines a bounded evidence deliverable plus a no-change boundary for product source, runtime configuration, deployment, credentials, and external systems. Complex research, cross-owner coordination, design, release, credential, or material-decision work is not eligible for this route.
+- An eligible `analysis_only` task stays in `planning`: complete and verify its evidence, commit task artifacts, and archive directly. Do not start implementation. A protected-target recommendation requires a separate change-bearing task.
 - Complex work: create a task after approval, then complete planning before implementation.
 - Task-creation approval is not implementation approval.
 - Do not create a subnode merely because work is broad or inconvenient. State the independent question, reason, evidence method, scope, and stop condition first; use the main session when independent evidence adds no decision value.
@@ -112,6 +114,18 @@ No active task. Classify the request. Direct small work with a clear single owne
 The active task record cannot be read. Do not create or activate another task. Repair the current task record while preserving existing artifacts, or ask the user when its status cannot be determined safely.
 [/workflow-state:task_error]
 
+[workflow-state:unbound_task]
+An existing task is assigned to the current developer, but this shell has no direct Trellis session binding. Do not create a duplicate task. Read the existing task artifacts and run the native `task.py start <task>` command once a direct session identity is available before lifecycle writes or closure.
+[/workflow-state:unbound_task]
+
+[workflow-state:unbound_ambiguous]
+Multiple active tasks belong to the current developer, but this shell has no direct Trellis session binding. Do not guess or create a duplicate task. Review the candidates and bind the intended task with the native `task.py start <task>` command once a direct session identity is available.
+[/workflow-state:unbound_ambiguous]
+
+[workflow-state:unbound_ambiguous-inline]
+Multiple active tasks belong to the current developer, but this Codex inline session has no direct Trellis session binding. Do not guess or create a duplicate task. Review the candidates and bind the intended task with the native `task.py start <task>` command once a direct session identity is available.
+[/workflow-state:unbound_ambiguous-inline]
+
 [workflow-state:planning]
 Stay in planning. Create or refine the required planning artifacts and record research. The main session performs ordinary work directly. A subnode is allowed only for a user-requested independent-evidence question with a frozen brief and durable task artifact path; report status is never acceptance.
 [/workflow-state:planning]
@@ -121,11 +135,11 @@ Stay in planning. Create or refine the required planning artifacts and record re
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. If implementation exposes a material unresolved decision, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress]
 
 [workflow-state:in_progress-inline]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. If implementation exposes a material unresolved decision, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress-inline]
 
 [workflow-state:completed]
@@ -147,7 +161,9 @@ permission to implement.
 Write `prd.md`; add `design.md` and `implement.md` when the task is complex.
 Resolve only unknowns that can change scope, risk, modification path, or
 acceptance. Keep alternatives as alternatives until the user selects one or
-evidence justifies a decision.
+evidence justifies a decision. After each answer, persist the decision,
+recalculate the planning frontier, and continue the same planning loop. Do not
+close the turn merely because a question was answered.
 
 Before the final planning summary, run one Planning Seal closure pass. Reconcile
 task metadata, PRD, design, implementation plan, research, decision records, and
@@ -184,8 +200,10 @@ complete PRD; a complex task also needs its design and implementation plan.
 Before Phase 2, ensure that the modification target, acceptance criteria,
 validation commands, and known risks are explicit. For a planned subnode,
 ensure the question is independent and bounded rather than a proxy for normal
-implementation or review. Confirm the Planning Seal is recorded before task
-activation.
+implementation or review. The planning seal must close every static
+implementation choice: no `TBD`, `TODO`, `decision-needed`, unowned option,
+unspecified branch, open implementation path, validation gap, or conditional
+acceptance point may remain.
 
 ---
 
@@ -213,8 +231,11 @@ primary report; it is never automatic.
 
 If verification or evidence disproves the selected approach, record the reason,
 restore the smallest correct state, and return to the relevant planning or
-implementation step. Do not hide a retracted conclusion by rewriting a
-subnode worklog or report history.
+implementation step. For a material unresolved decision during implementation,
+record `decision-needed`, run `python3 ./.trellis/scripts/task.py replan
+<task> "<reason>"`, and return to planning. Do not open an ad-hoc popup or
+silently choose. Do not hide a retracted conclusion by rewriting a subnode
+worklog or report history.
 
 ---
 
@@ -235,7 +256,11 @@ than inflating permanent specifications.
 #### 3.4 Commit Changes `[required · once]`
 
 After required checks pass, review the diff, retain task and decision records,
-and create the scoped commit. The main session owns all Git operations.
+and create the scoped commit directly. The main session owns all Git
+operations; this workflow does not insert a second `Proposed commits`/`ok`
+confirmation step between the accepted task plan and the commit. Push, remote
+release, and destructive operations still require their normal explicit
+authorization and owner protocol.
 
 #### 3.5 Wrap Up `[required · once]`
 
