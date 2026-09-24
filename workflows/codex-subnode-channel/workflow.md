@@ -127,11 +127,13 @@ Multiple active tasks belong to the current developer, but this Codex inline ses
 [/workflow-state:unbound_ambiguous-inline]
 
 [workflow-state:planning]
-Stay in planning. Create or refine the required planning artifacts and record research. The main session performs ordinary work directly. A subnode is allowed only for a user-requested independent-evidence question with a frozen brief and durable task artifact path; report status is never acceptance.
+Only if `task.json.meta.delivery_mode = "analysis_only"` exactly and its PRD satisfies the bounded evidence-only eligibility rule, stay in planning: complete and verify the bounded evidence, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`.
+For a change-bearing task, stay in planning until the required artifacts are complete, the Planning Seal is closed, and the user approves implementation. Then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` to enter `in_progress`; do not implement while status is `planning`. The main session performs ordinary work directly. A subnode is allowed only for a user-requested independent-evidence question with a frozen brief and durable task artifact path; report status is never acceptance.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
-Stay in planning. Create or refine the required planning artifacts and record research. The main session performs ordinary work directly. A subnode is allowed only for a user-requested independent-evidence question with a frozen brief and durable task artifact path; report status is never acceptance.
+Only if `task.json.meta.delivery_mode = "analysis_only"` exactly and its PRD satisfies the bounded evidence-only eligibility rule, stay in planning: complete and verify the bounded evidence, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`.
+For a change-bearing task, stay in planning until the required artifacts are complete, the Planning Seal is closed, and the user approves implementation. Then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` to enter `in_progress`; do not implement while status is `planning`. The main session performs ordinary work directly. A subnode is allowed only for a user-requested independent-evidence question with a frozen brief and durable task artifact path; report status is never acceptance.
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]
@@ -192,8 +194,13 @@ and a deadline.
 
 #### 1.4 Activate Task `[required · once]`
 
-Review the planning artifacts, then start the task. A lightweight task needs a
-complete PRD; a complex task also needs its design and implementation plan.
+For change-bearing tasks only, review the planning artifacts. A lightweight
+task needs a complete PRD; a complex task also needs its design and
+implementation plan. Once the Planning Seal is closed and the user approves
+implementation, run native `python3 ./.trellis/scripts/task.py start <task-dir>`;
+implementation begins only after status becomes `in_progress`. An eligible
+`analysis_only` task completes its bounded evidence and archives from planning
+without start.
 
 #### 1.5 Completion Criteria
 
