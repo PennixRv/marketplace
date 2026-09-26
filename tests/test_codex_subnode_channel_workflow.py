@@ -26,6 +26,49 @@ class PlanningTransitionTests(unittest.TestCase):
                 self.assertIn("native `python3 ./.trellis/scripts/task.py start", body)
                 self.assertNotIn("Stay in planning. Create or refine", body)
 
+    def test_subnode_profile_contract_is_explicit(self) -> None:
+        for profile in (
+            "code_path",
+            "docs_source",
+            "fault_diagnosis",
+            "correctness_test",
+            "security_permission",
+            "architecture_compat",
+            "requirements_assumption",
+            "ux_accessibility",
+            "evidence_synthesis",
+        ):
+            self.assertIn(f"`{profile}`", WORKFLOW)
+        for phrase in (
+            ".trellis/agents/subnode-profiles.json",
+            "gpt-6-sol",
+            "single-dispatch override",
+            "symlinked",
+            "never silently fall back",
+            "--reasoning-effort-reason",
+            "profile configuration relative path and SHA-256 digest",
+            "durable `spawned` event",
+        ):
+            self.assertIn(phrase, WORKFLOW)
+
+    def test_fifo_queue_contract_is_explicit(self) -> None:
+        for phrase in (
+            "queue init",
+            "queue validate",
+            "queue.json",
+            "dispatch-claim.json",
+            "native `channel spawn`/`send`",
+            "native Channel waiter after a durable barrier",
+            "complete report with no validator concerns",
+            "matching source",
+            "target recheck",
+            "`accepted` disposition",
+            "An abandoned queue cannot claim further work",
+            "high-frequency polling",
+            "resident scheduler",
+        ):
+            self.assertIn(phrase, WORKFLOW)
+
         phase = " ".join(
             WORKFLOW.split("#### 1.4 Activate Task", 1)[1]
             .split("#### 1.5 Completion Criteria", 1)[0]

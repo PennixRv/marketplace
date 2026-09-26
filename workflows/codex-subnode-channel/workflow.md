@@ -12,6 +12,100 @@
 6. **Channel is the lifecycle surface** — use its native create, spawn, send, and wait protocol. Wait for events rather than high-frequency polling; do not create a second waiter, use terminal JSON as the report, or add automatic retry/scheduling.
 7. **Evidence is unit-sized** — split read-heavy main-session or subnode work into independently useful evidence units when one bounded session cannot persist a conclusion. Each unit records its scope, minimal evidence, destination, stop condition, conclusion or blocker, unknowns, and recovery point before the next unit.
 
+### Subnode Evidence Profiles
+
+The Trellis project template provides an editable
+`.trellis/agents/subnode-profiles.json`. It is the single project-local source
+for non-implementation evidence profiles. Keep the same `subnode` identity,
+brief `lens`, report v2, and coordinator disposition for every profile; a
+profile changes dispatch configuration, not authority or acceptance semantics.
+
+The default mapping uses `gpt-6-sol` and these nine stable profile IDs:
+
+| Profile | Default effort | Typical evidence unit |
+|---|---:|---|
+| `code_path` | `medium` | code-location and call-path tracing |
+| `docs_source` | `medium` | official documentation and source comparison |
+| `fault_diagnosis` | `high` | root-cause and failure reconstruction |
+| `correctness_test` | `high` | contract and regression review |
+| `security_permission` | `high` | trust boundary and permission review |
+| `architecture_compat` | `high` | cross-layer compatibility and migration review |
+| `requirements_assumption` | `high` | requirements, ambiguity, and assumption audit |
+| `ux_accessibility` | `high` | interaction and accessibility review |
+| `evidence_synthesis` | `medium` | bounded cross-source synthesis |
+
+Projects may add or remove profile IDs while preserving the required
+`reasoning_effort` values (`medium`, `high`, or `xhigh`). A profile may provide
+its own model; otherwise it uses `default_model`. A single dispatch may
+explicitly override model and effort. Resolution is deterministic:
+single-dispatch override, profile model, profile default model, then the
+agent's legacy model when no profile was selected. Explicit effort overrides
+profile effort. Unknown, missing, malformed, symlinked, or non-Codex profile
+configuration is a dispatch error; never silently fall back.
+
+`xhigh` requires a concrete non-empty `--reasoning-effort-reason` tied to the
+evidence unit. The reason is recorded with the resolved values. The worker
+still uses the shared Codex configuration window; this workflow does not
+promise a temporary main-session model or context override and does not claim
+provider-side effective effort when the adapter cannot observe it.
+
+Before a worker is spawned, the coordinator records the immutable brief,
+selected profile, profile configuration relative path and SHA-256 digest,
+resolved model and effort, source of each resolution, and any override reason.
+The durable `spawned` event is the machine-readable receipt. A terminal event,
+worker message, or report alone never proves that the selected profile was
+accepted.
+
+### Persistent FIFO Dispatch Queue
+
+When one task has multiple independent evidence units, the coordinator may use
+the task-owned queue helper after the reliability gate has passed:
+
+```bash
+python3 ./.trellis/scripts/subnode_artifact.py queue init \
+  --task <task-dir> --work-id <work-id> \
+  --channel-name <channel> --channel-scope project \
+  --brief <brief-1> --brief <brief-2>
+python3 ./.trellis/scripts/subnode_artifact.py queue validate \
+  --task <task-dir> --work-id <work-id>
+```
+
+`queue.json` is written once and contains only the task/work/Channel identity,
+creation time, and immutable FIFO brief references with digests. It is not a
+worker-state mirror. Immediately before each native `channel spawn`/`send`, the
+coordinator writes one `dispatch-claim.json` for that subnode; a claim followed
+by a spawn failure is a failed attempt that must be investigated, not silently
+retried. A new attempt requires a new brief and subnode ID.
+
+The main session fills available guard capacity in queue order, then uses one
+native Channel waiter after a durable barrier. Terminal release of a physical
+slot does not itself authorize a replacement. Before every replacement, the
+coordinator rechecks every dispatched item: only a native terminal event,
+complete report with no validator concerns, matching source and protected
+target recheck, and a single written `accepted` disposition authorize the next
+FIFO item. `blocked`, `incomplete`, `rejected`, validator concern, capacity
+rejection, missing event, conflicting receipt, or an unresolvable reservation
+pauses the whole queue.
+
+On interruption or resume, reconstruct state from the original Channel events,
+claims, live PID/reservation, reports, and dispositions. An existing claim or
+attempt is never re-dispatched merely because its process is gone. The
+coordinator continues only with items that have no attempt facts and only when
+all earlier items are accepted. The main session must remain present; this is
+not a background scheduler. To stop permanently, write one abandonment marker
+and retain dispatched/pending IDs:
+
+```bash
+python3 ./.trellis/scripts/subnode_artifact.py queue abandon \
+  --task <task-dir> --work-id <work-id> --reason <reason> \
+  --dispatched <id> --pending <id>
+```
+
+An abandoned queue cannot claim further work. Do not delete, reorder, skip, or
+edit queue items. A different order requires a new work ID. Waiting uses the
+existing durable barrier/`afterSeq` path; high-frequency polling, a second
+waiter, automatic retry, and a resident scheduler remain prohibited.
+
 This workflow assumes Codex's default `codex.dispatch_mode: inline`. Do not
 select `auto` or `sub-agent` for this workflow: those modes seed native-agent
 context and belong to the Native Trellis Workflow instead.
