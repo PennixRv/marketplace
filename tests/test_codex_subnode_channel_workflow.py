@@ -64,6 +64,8 @@ class PlanningTransitionTests(unittest.TestCase):
             "target recheck",
             "`accepted` disposition",
             "An abandoned queue cannot claim further work",
+            "partition every queued ID",
+            "claim-mismatched ranges",
             "high-frequency polling",
             "resident scheduler",
         ):

@@ -93,7 +93,10 @@ attempt is never re-dispatched merely because its process is gone. The
 coordinator continues only with items that have no attempt facts and only when
 all earlier items are accepted. The main session must remain present; this is
 not a background scheduler. To stop permanently, write one abandonment marker
-and retain dispatched/pending IDs:
+and partition every queued ID between persisted dispatch claims and the
+remaining unclaimed items. A claim counts as an attempted dispatch even if the
+native spawn subsequently fails; the helper rejects incomplete, overlapping,
+or claim-mismatched ranges:
 
 ```bash
 python3 ./.trellis/scripts/subnode_artifact.py queue abandon \
