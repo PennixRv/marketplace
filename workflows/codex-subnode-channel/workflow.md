@@ -151,9 +151,10 @@ an already-started task, a material recorded change, explicit inspection or
 repair, or a user-requested pause/finish. Do not create one for ordinary edits,
 tests, diffs, compaction, resume, or a subnode event/report. It is never a
 formal-handoff gate, a source-session exit signal, or a replacement for the
-Pennix session-handoff Semantic Handoff Capsule and its explicit OpenViking
-checkpoint. For a formal handoff, the checkpoint's exact archive/convergence
-evidence and handoff receipt remain authoritative; a RecoveryBrief may be
+Pennix session-handoff Semantic Handoff Capsule and its explicit Hindsight
+write/readback step. For a formal handoff, the `hindsight_required` path's
+project-bank retain/readback evidence and handoff receipt remain authoritative;
+the explicit `core_only` mode is the offline exception. A RecoveryBrief may be
 included as corroborating task evidence only.
 
 ### Independent Evidence
