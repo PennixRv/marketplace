@@ -152,10 +152,12 @@ repair, or a user-requested pause/finish. Do not create one for ordinary edits,
 tests, diffs, compaction, resume, or a subnode event/report. It is never a
 formal-handoff gate, a source-session exit signal, or a replacement for the
 Pennix session-handoff Semantic Handoff Capsule and its explicit Hindsight
-write/readback step. For a formal handoff, the `hindsight_required` path's
-project-bank retain/readback evidence and handoff receipt remain authoritative;
-the explicit `core_only` mode is the offline exception. A RecoveryBrief may be
-included as corroborating task evidence only.
+write/operation-completion and same-document retrieval-verification step. For a
+formal handoff, the `hindsight_required` path's project-bank evidence and
+handoff receipt remain authoritative: `retrieval_verified` proves that the
+document identity is retrievable, while it does not prove `canonical_persisted`
+or canonical content equality. The explicit `core_only` mode is the offline
+exception. A RecoveryBrief may be included as corroborating task evidence only.
 
 ### Independent Evidence
 
