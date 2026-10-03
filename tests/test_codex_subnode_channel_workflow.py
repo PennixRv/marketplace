@@ -28,7 +28,6 @@ class PlanningTransitionTests(unittest.TestCase):
 
     def test_subnode_profile_contract_is_explicit(self) -> None:
         for profile in (
-            "code_path",
             "docs_source",
             "fault_diagnosis",
             "correctness_test",
@@ -41,7 +40,8 @@ class PlanningTransitionTests(unittest.TestCase):
             self.assertIn(f"`{profile}`", WORKFLOW)
         for phrase in (
             ".trellis/agents/subnode-profiles.json",
-            "gpt-6-sol",
+            "gpt-6.1-sol",
+            "gpt-5.6-luna",
             "single-dispatch override",
             "symlinked",
             "never silently fall back",
@@ -50,6 +50,11 @@ class PlanningTransitionTests(unittest.TestCase):
             "durable `spawned` event",
         ):
             self.assertIn(phrase, WORKFLOW)
+
+        self.assertNotIn("| `code_path` |", WORKFLOW)
+        self.assertIn("`code_path` is not a shipped preset", WORKFLOW)
+        self.assertIn("| `docs_source` | `xhigh` |", WORKFLOW)
+        self.assertIn("`max` is outside the current Trellis effort contract", WORKFLOW)
 
     def test_fifo_queue_contract_is_explicit(self) -> None:
         for phrase in (

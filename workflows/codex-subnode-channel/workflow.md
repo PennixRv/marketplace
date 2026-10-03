@@ -20,12 +20,12 @@ for non-implementation evidence profiles. Keep the same `subnode` identity,
 brief `lens`, report v2, and coordinator disposition for every profile; a
 profile changes dispatch configuration, not authority or acceptance semantics.
 
-The default mapping uses `gpt-6-sol` and these nine stable profile IDs:
+The shipped `default_model` is `gpt-6.1-sol`. `docs_source` overrides it with
+`gpt-5.6-luna`. These eight default profile IDs select bounded evidence work:
 
 | Profile | Default effort | Typical evidence unit |
 |---|---:|---|
-| `code_path` | `medium` | code-location and call-path tracing |
-| `docs_source` | `medium` | official documentation and source comparison |
+| `docs_source` | `xhigh` | extraction from identified official sources |
 | `fault_diagnosis` | `high` | root-cause and failure reconstruction |
 | `correctness_test` | `high` | contract and regression review |
 | `security_permission` | `high` | trust boundary and permission review |
@@ -33,6 +33,20 @@ The default mapping uses `gpt-6-sol` and these nine stable profile IDs:
 | `requirements_assumption` | `high` | requirements, ambiguity, and assumption audit |
 | `ux_accessibility` | `high` | interaction and accessibility review |
 | `evidence_synthesis` | `medium` | bounded cross-source synthesis |
+
+Ordinary code-location and call-path lookup stays in the main session;
+`code_path` is not a shipped preset. When independent call-chain evidence is
+needed, select `correctness_test`, `fault_diagnosis`, or `architecture_compat`
+with that specific brief lens.
+
+Use `docs_source` for extraction from known sources. A version conflict,
+interface-contract judgment, or disputed source requires an explicit
+`gpt-6.1-sol` / `high` override. Keep judgment profiles on Sol; increase to
+`xhigh` when conflicting evidence, cross-layer reasoning, or material risk
+justifies it. Luna may organize already-verified facts through an explicit
+override; model selection does not transfer coordinator acceptance authority.
+Do not introduce automatic model fallback, effort escalation, or a default
+`max` effort; `max` is outside the current Trellis effort contract.
 
 Projects may add or remove profile IDs while preserving the required
 `reasoning_effort` values (`medium`, `high`, or `xhigh`). A profile may provide
@@ -44,7 +58,10 @@ profile effort. Unknown, missing, malformed, symlinked, or non-Codex profile
 configuration is a dispatch error; never silently fall back.
 
 `xhigh` requires a concrete non-empty `--reasoning-effort-reason` tied to the
-evidence unit. The reason is recorded with the resolved values. The worker
+evidence unit. This also applies to Luna: the reason may explain that `xhigh`
+is its lowest selected effort for a bounded source-extraction unit, without
+claiming that ordinary extraction is complex. The reason is recorded with
+the resolved values. The worker
 still uses the shared Codex configuration window; this workflow does not
 promise a temporary main-session model or context override and does not claim
 provider-side effective effort when the adapter cannot observe it.
