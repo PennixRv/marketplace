@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Guard the published planning transition contract."""
 
+import hashlib
+import json
 from pathlib import Path
 import unittest
 
@@ -12,6 +14,18 @@ WORKFLOW = (
 
 
 class PlanningTransitionTests(unittest.TestCase):
+    def test_marketplace_index_matches_workflow_bytes(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        index = json.loads((root / "index.json").read_text(encoding="utf-8"))
+        template = next(
+            item for item in index["templates"]
+            if item["id"] == "codex-subnode-channel"
+        )
+        self.assertEqual(
+            hashlib.sha256((root / template["path"]).read_bytes()).hexdigest(),
+            template["sha256"],
+        )
+
     def test_planning_blocks_and_activation_agree(self) -> None:
         for state in ("planning", "planning-inline"):
             with self.subTest(state=state):
