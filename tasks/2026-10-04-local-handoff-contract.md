@@ -12,3 +12,8 @@ records. No replacement service is introduced.
 Acceptance: source workflow no longer requires a remote proof; Trellis template
 regressions and consumer workflow verification validate the released contract.
 Source publication and consumer verification are tracked by the coordinator.
+
+Consumer preview rejected the first commit because its index digest had not
+been refreshed. Correct the exact index entry, run the existing five planning
+and integrity tests, and require native preview/apply/verify at the corrected
+immutable commit before accepting consumer delivery.
