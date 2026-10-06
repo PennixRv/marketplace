@@ -78,9 +78,10 @@ class PlanningTransitionTests(unittest.TestCase):
             "dispatch-claim.json",
             "native `channel spawn`/`send`",
             "native Channel waiter after a durable barrier",
-            "complete report with no validator concerns",
-            "matching source",
-            "target recheck",
+            "complete report without validator concerns",
+            "source/protected-target recheck",
+            "healthy live predecessors do not block a refill",
+            "multi-target-dispatch.md",
             "`accepted` disposition",
             "An abandoned queue cannot claim further work",
             "partition every queued ID",
@@ -89,6 +90,9 @@ class PlanningTransitionTests(unittest.TestCase):
             "resident scheduler",
         ):
             self.assertIn(phrase, WORKFLOW)
+
+        fifo = WORKFLOW.split("### Persistent FIFO Dispatch Queue", 1)[1].split("## Plan Approval", 1)[0]
+        self.assertNotIn("all earlier items are accepted", fifo)
 
         phase = " ".join(
             WORKFLOW.split("#### 1.4 Activate Task", 1)[1]
