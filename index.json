@@ -73,7 +73,7 @@
       "name": "Codex Subnode Channel",
       "description": "Codex-first Trellis workflow: main-session delivery by default, with explicit Channel subnodes for durable independent evidence",
       "path": "workflows/codex-subnode-channel/workflow.md",
-      "sha256": "1a614a406821c155468333ed81bb4672fe26d7398aac1bb90c2aabfea97ab23c",
+      "sha256": "d9305369ffe3eb67b878649ac40861942bb31381c3fb8d338870c8031b5a5dc1",
       "tags": ["workflow", "codex", "channel", "subnode", "evidence"]
     },
     {
