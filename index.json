@@ -7,7 +7,12 @@
       "name": "Electron + React + TypeScript",
       "description": "Full-stack Electron desktop app with React frontend and SQLite backend",
       "path": "specs/electron-fullstack",
-      "tags": ["electron", "react", "typescript", "sqlite"]
+      "tags": [
+        "electron",
+        "react",
+        "typescript",
+        "sqlite"
+      ]
     },
     {
       "id": "nextjs-fullstack",
@@ -15,7 +20,14 @@
       "name": "Next.js + oRPC + PostgreSQL",
       "description": "Full-stack Next.js application with oRPC API layer, Drizzle ORM, and PostgreSQL",
       "path": "specs/nextjs-fullstack",
-      "tags": ["nextjs", "react", "typescript", "orpc", "drizzle", "postgresql"]
+      "tags": [
+        "nextjs",
+        "react",
+        "typescript",
+        "orpc",
+        "drizzle",
+        "postgresql"
+      ]
     },
     {
       "id": "cf-workers-fullstack",
@@ -23,7 +35,15 @@
       "name": "Cloudflare Workers + Hono + Turso",
       "description": "Full-stack Cloudflare Workers application with Hono framework, Drizzle ORM, and Turso database",
       "path": "specs/cf-workers-fullstack",
-      "tags": ["cloudflare", "workers", "hono", "drizzle", "turso", "react", "typescript"]
+      "tags": [
+        "cloudflare",
+        "workers",
+        "hono",
+        "drizzle",
+        "turso",
+        "react",
+        "typescript"
+      ]
     },
     {
       "id": "trellis-meta",
@@ -31,7 +51,12 @@
       "name": "Trellis Meta Skill",
       "description": "Meta-skill for understanding and customizing Trellis workflows",
       "path": "skills/trellis-meta",
-      "tags": ["trellis", "meta", "workflow", "customization"]
+      "tags": [
+        "trellis",
+        "meta",
+        "workflow",
+        "customization"
+      ]
     },
     {
       "id": "trellis-spec-bootstarp",
@@ -39,7 +64,12 @@
       "name": "Trellis Spec Bootstarp",
       "description": "Platform-neutral workflow for bootstrapping project-specific Trellis coding specs",
       "path": "skills/trellis-spec-bootstarp",
-      "tags": ["trellis", "spec", "bootstrap", "codebase-analysis"]
+      "tags": [
+        "trellis",
+        "spec",
+        "bootstrap",
+        "codebase-analysis"
+      ]
     },
     {
       "id": "frontend-fullchain-optimization",
@@ -47,7 +77,13 @@
       "name": "Frontend Full-Chain Optimization",
       "description": "Web Vitals-driven frontend performance diagnosis and optimization workflow",
       "path": "skills/frontend-fullchain-optimization",
-      "tags": ["frontend", "performance", "web-vitals", "lighthouse", "optimization"]
+      "tags": [
+        "frontend",
+        "performance",
+        "web-vitals",
+        "lighthouse",
+        "optimization"
+      ]
     },
     {
       "id": "native",
@@ -55,8 +91,12 @@
       "name": "Native Trellis Workflow",
       "description": "Default Trellis Plan / Execute / Finish workflow with native sub-agent and inline platform branches",
       "path": "workflows/native/workflow.md",
-      "sha256": "f15088d8e05db894551d09144ba25ff98ae0150faaa90187fb7a05129992965c",
-      "tags": ["workflow", "native", "default"]
+      "sha256": "8d7cdec2858f670c50e8aad1c9b6a9b55bc1bfbba5efbf716282bb9cf02b498a",
+      "tags": [
+        "workflow",
+        "native",
+        "default"
+      ]
     },
     {
       "id": "tdd",
@@ -65,7 +105,11 @@
       "description": "Trellis workflow variant that drives Phase 2 with one red / green / refactor behavior slice at a time",
       "path": "workflows/tdd/workflow.md",
       "sha256": "915d07299f09da38b94fbb80b514db7aa214a3933a71e6b98464baded9d5e388",
-      "tags": ["workflow", "tdd", "testing"]
+      "tags": [
+        "workflow",
+        "tdd",
+        "testing"
+      ]
     },
     {
       "id": "codex-subnode-channel",
@@ -73,8 +117,14 @@
       "name": "Codex Subnode Channel",
       "description": "Codex-first Trellis workflow: main-session delivery by default, with explicit Channel subnodes for durable independent evidence",
       "path": "workflows/codex-subnode-channel/workflow.md",
-      "sha256": "d9305369ffe3eb67b878649ac40861942bb31381c3fb8d338870c8031b5a5dc1",
-      "tags": ["workflow", "codex", "channel", "subnode", "evidence"]
+      "sha256": "7106219e993ee7a9ec49b17cf9e86d2cd4a2ebcab01e6e6c64311e6c8dcb8da2",
+      "tags": [
+        "workflow",
+        "codex",
+        "channel",
+        "subnode",
+        "evidence"
+      ]
     },
     {
       "id": "channel-driven-subagent-dispatch",
@@ -83,7 +133,12 @@
       "description": "Trellis workflow variant where the main session coordinates implement/check workers through trellis channel",
       "path": "workflows/channel-driven-subagent-dispatch/workflow.md",
       "sha256": "b60f813421a2604144bf529381e4785f0ffa3d877df1103c38064c77f39895ce",
-      "tags": ["workflow", "channel", "sub-agent", "dogfood"]
+      "tags": [
+        "workflow",
+        "channel",
+        "sub-agent",
+        "dogfood"
+      ]
     }
   ]
 }

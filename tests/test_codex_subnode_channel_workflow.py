@@ -33,7 +33,11 @@ class PlanningTransitionTests(unittest.TestCase):
                     f"[/workflow-state:{state}]", 1
                 )[0]
                 self.assertIn('delivery_mode = "analysis_only"', body)
+                self.assertIn("regardless of complexity or cross-owner scope", body)
                 self.assertIn("archive without running `task.py start`", body)
+                self.assertIn("freeze the dispatch plan in task artifacts", body)
+                self.assertIn("explicit user approval", body)
+                self.assertIn("only the listed evidence work", body)
                 self.assertIn("change-bearing task", body)
                 self.assertIn("Planning Seal is closed", body)
                 self.assertIn("user approves implementation", body)
