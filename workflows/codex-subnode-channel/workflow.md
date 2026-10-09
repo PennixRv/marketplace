@@ -169,6 +169,16 @@ approved before start. Old unclassified planning tasks need
 classification once; existing in-progress tasks are not reset. Direct small
 work and eligible analysis-only work keep their existing shortest paths.
 
+An explicitly user-requested addition to an `in_progress` task may continue in
+the current phase when it serves the same task, keeps the same actual owner and
+target, is small, reversible, and low risk, and changes none of the sealed
+scope in substance, owner, risk, public behavior, data integrity, credentials,
+deployment/release path, or acceptance. Record the request, classification,
+owner, acceptance, and verification in the unsealed execution record; the
+request authorizes only that exact addition. If any condition is false or
+unclear, preserve the current conclusion, record `decision-needed`, and use
+native `task.py replan` with the normal new-seal and later-approval path.
+
 Use native `task.py select <task>` for context only, preserving phase and branch
 without after_start hooks or implementation authority. `create --no-start`
 keeps the prior pointer. Save the old checkpoint; with live Channel work, pause
@@ -294,11 +304,11 @@ For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. If implementation exposes a material unresolved decision, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress]
 
 [workflow-state:in_progress-inline]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. If implementation exposes a material unresolved decision, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress-inline]
 
 [workflow-state:completed]

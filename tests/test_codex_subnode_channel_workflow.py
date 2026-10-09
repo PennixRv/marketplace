@@ -44,6 +44,26 @@ class PlanningTransitionTests(unittest.TestCase):
                 self.assertIn("native `python3 ./.trellis/scripts/task.py start", body)
                 self.assertNotIn("Stay in planning. Create or refine", body)
 
+    def test_in_progress_amendment_boundary_is_explicit(self) -> None:
+        normalized_workflow = " ".join(WORKFLOW.split())
+        for phrase in (
+            "An explicitly user-requested addition to an `in_progress` task",
+            "same actual owner and",
+            "deployment/release path",
+            "authorizes only that exact addition",
+            "If any condition is false or",
+            "record `decision-needed`",
+            "native `task.py replan`",
+        ):
+            self.assertIn(phrase, normalized_workflow)
+
+        for state in ("in_progress", "in_progress-inline"):
+            body = WORKFLOW.split(f"[workflow-state:{state}]\n", 1)[1].split(
+                f"[/workflow-state:{state}]", 1
+            )[0]
+            self.assertIn("bounded, explicitly user-requested amendment", body)
+            self.assertIn("amendment condition is false or unclear", body)
+
     def test_subnode_profile_contract_is_explicit(self) -> None:
         for profile in (
             "docs_source",
