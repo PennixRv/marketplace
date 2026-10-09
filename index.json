@@ -91,7 +91,7 @@
       "name": "Native Trellis Workflow",
       "description": "Default Trellis Plan / Execute / Finish workflow with native sub-agent and inline platform branches",
       "path": "workflows/native/workflow.md",
-      "sha256": "8d7cdec2858f670c50e8aad1c9b6a9b55bc1bfbba5efbf716282bb9cf02b498a",
+      "sha256": "a8e3b73282c8ca47f0acaa188f8f40add0afb040ee8ffbdcc3aefcf17760b366",
       "tags": [
         "workflow",
         "native",
@@ -117,7 +117,7 @@
       "name": "Codex Subnode Channel",
       "description": "Codex-first Trellis workflow: main-session delivery by default, with explicit Channel subnodes for durable independent evidence",
       "path": "workflows/codex-subnode-channel/workflow.md",
-      "sha256": "3a49de3feafe447a0e12d646d765466cde0f1097bbffa27494bea2d8f8c6bb97",
+      "sha256": "b5d932bffa0accc7275d78e15c547c3187d1269aaabc211767a95fc5173e1ae5",
       "tags": [
         "workflow",
         "codex",

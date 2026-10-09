@@ -64,7 +64,12 @@ class PlanningTransitionTests(unittest.TestCase):
             self.assertIn("bounded, explicitly user-requested amendment", body)
             self.assertIn("amendment condition is false or unclear", body)
 
-    def test_subnode_profile_contract_is_explicit(self) -> None:
+    def test_progressive_decision_entry_and_execution_escalation(self) -> None:
+        # Prompt contract only; does not claim live model behavior.
+        for phrase in ("one material choice is sufficient", "dependency-ready", "then impact/priority", "missing evidence, not a closed plan", "blocking question tool", "immediately explain its impact"):
+            self.assertIn(phrase, WORKFLOW)
+
+    def test_subnode_profile_contract_is_preserved(self) -> None:
         for profile in (
             "docs_source",
             "fault_diagnosis",

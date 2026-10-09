@@ -150,6 +150,15 @@ be replaced by unsupported main-session pass claims.
 
 ## Plan Approval And Task Selection
 
+Except for clearly bounded research, screen consequential user-owned choices
+with `pennix-decision-grill`; one material choice is sufficient. It owns the
+progressive questioning method, not task lifecycle. Use dependency-ready,
+evidence-backed choices first, then impact/priority; ask one to three coherent
+independent decisions and reassess after answers. Do not ask discoverable facts
+or settled implementation details. Save the decision checkpoint before bounded
+local/web evidence or explicitly approved independent subnodes. An empty ready
+frontier may mean missing evidence, not a closed plan.
+
 Classify task meta explicitly: `execution_class=direct|planned` and
 `delivery_mode=change_bearing|analysis_only`. For planned/change-bearing work,
 close decisions and required artifacts, run native `task.py plan seal <task>`,
@@ -176,8 +185,9 @@ scope in substance, owner, risk, public behavior, data integrity, credentials,
 deployment/release path, or acceptance. Record the request, classification,
 owner, acceptance, and verification in the unsealed execution record; the
 request authorizes only that exact addition. If any condition is false or
-unclear, preserve the current conclusion, record `decision-needed`, and use
-native `task.py replan` with the normal new-seal and later-approval path.
+unclear, immediately explain its impact and recommendation, stop dependent
+actions and record `decision-needed`. Run native `task.py replan` to planning,
+then use the blocking question tool and the new-seal/later-approval path.
 
 Use native `task.py select <task>` for context only, preserving phase and branch
 without after_start hooks or implementation authority. `create --no-start`
@@ -304,11 +314,11 @@ For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, immediately explain its impact and recommendation, stop dependent actions, record `decision-needed`, run native `task.py replan` to planning, then use the blocking question tool and re-seal/approve. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress]
 
 [workflow-state:in_progress-inline]
-Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, record `decision-needed`, run `task.py replan`, and return to planning. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
+Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, immediately explain its impact and recommendation, stop dependent actions, record `decision-needed`, run native `task.py replan` to planning, then use the blocking question tool and re-seal/approve. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress-inline]
 
 [workflow-state:completed]
