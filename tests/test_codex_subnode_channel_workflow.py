@@ -18,12 +18,13 @@ class PlanningTransitionTests(unittest.TestCase):
                 body = WORKFLOW.split(f"[workflow-state:{state}]\n", 1)[1].split(
                     f"[/workflow-state:{state}]", 1
                 )[0]
-                self.assertIn('delivery_mode = "analysis_only"', body)
-                self.assertIn("archive without running `task.py start`", body)
+                self.assertIn("For `analysis_only`, stay in planning", body)
+                self.assertIn("without Planning Seal, implementation approval", body)
+                self.assertIn("Before any requested subnode spawn/send", body)
                 self.assertIn("change-bearing task", body)
-                self.assertIn("Planning Seal is closed", body)
+                self.assertIn("the Planning Seal are complete", body)
                 self.assertIn("user approves implementation", body)
-                self.assertIn("native `python3 ./.trellis/scripts/task.py start", body)
+                self.assertIn("then run native `task.py start` before implementation", body)
                 self.assertNotIn("Stay in planning. Create or refine", body)
 
     def test_subnode_profile_contract_is_explicit(self) -> None:
