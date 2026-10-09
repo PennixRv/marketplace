@@ -12,6 +12,46 @@
 
 ---
 
+### Continuation and Compaction
+
+Reuse the current conversation or sufficient compaction checkpoint when root,
+task, phase, authorization and pending action are known. An ordinary continue
+resumes that action without repeated startup, task/Git/history or handoff
+validation. Query only missing/conflicting facts for a fresh session, changed
+target or explicit inspection. Native protected writes retain owner identity
+and ownership checks. Never repeat or re-answer consumed pre-compaction user
+input; handle genuinely new input normally. No recovery cache or extra waiter.
+
+## Plan Approval And Task Selection
+
+Classify task meta explicitly as `execution_class=direct|planned` and
+`delivery_mode=change_bearing|analysis_only`; an unclassified old planning task
+needs this once before start. Direct small work and eligible analysis-only work
+retain their existing shortest paths. Existing in-progress tasks are not reset.
+
+For planned/change-bearing work, close decisions and required task artifacts,
+run native `task.py plan seal <task>`, present that material plan, and stop before
+implementation. Only a later explicit user approval for THIS task's CURRENT
+sealed revision authorizes `task.py plan approve <task> --revision <n> --basis
+"<short non-sensitive actual approval basis>"`, then `task.py start`. Initial
+delivery requests, parent-task approval, and design answers do not qualify.
+`--allow-empty-context` overrides only context manifests, never approval.
+The native record enforces structure; chat authenticity remains agent-owned.
+
+Material scope, owner, risk, public behavior, or acceptance changes require
+`task.py replan` and a newly sealed, presented, subsequently approved revision.
+Resealing a sealed planning task declares a new material revision. Wording,
+formatting, progress, and execution evidence do not automatically invalidate it.
+Generic create/set-meta cannot prefill the reserved `meta.planning` record.
+
+Use native `task.py select <task>` for context-only selection: no phase/branch
+change, after_start hook, or implementation authority. `create --no-start`
+deliberately keeps the prior pointer. Save the old checkpoint before switching;
+with live Channel work, pause refills and drain all already dispatched units and
+reservations according to `trellis-channel`'s multi-target procedure, preserving
+pending units and the old phase. Do not kill/retry or automatically restart a
+user-stopped task. Ordinary continue/compaction retains the checkpoint fast path.
+
 ## Trellis System
 
 ### Developer Identity
@@ -44,7 +84,10 @@ Every task has its own directory under `.trellis/tasks/{MM-DD-name}/` holding `t
 ```bash
 # Task lifecycle
 python3 ./.trellis/scripts/task.py create "<title>" [--slug <name>] [--parent <dir>]
-python3 ./.trellis/scripts/task.py start <name>          # set active task (session-scoped when available)
+python3 ./.trellis/scripts/task.py select <name>         # context only, preserve phase
+python3 ./.trellis/scripts/task.py plan seal <name>      # current material plan
+python3 ./.trellis/scripts/task.py plan approve <name> --revision <n> --basis "<actual approval>"
+python3 ./.trellis/scripts/task.py start <name>          # begin only when start gates pass
 python3 ./.trellis/scripts/task.py replan <name> "<reason>" # return material ambiguity to planning
 python3 ./.trellis/scripts/task.py current --source      # show active task and source
 python3 ./.trellis/scripts/task.py finish                # clear active task (triggers after_finish hooks)
@@ -164,9 +207,9 @@ Phase 3: Finish  → verify, update spec, commit, and wrap up
 
 ### Analysis-only tasks
 
-An analysis-only task is eligible when `task.json.meta.delivery_mode = "analysis_only"` exactly and its `prd.md` names the bounded evidence deliverable plus a no-change boundary for product source, runtime configuration, deployment, credentials, and external systems. Complexity, cross-owner scope, multiple evidence units, recommendations, or unresolved product choices do not make it ineligible; the user's research request authorizes the requested main-session evidence work.
+An analysis-only task is eligible when `task.json.meta.delivery_mode = "analysis_only"` exactly and its `prd.md` names the evidence deliverable plus a no-change boundary for product source, runtime configuration, deployment, credentials, and external systems. Complexity, cross-owner scope, multiple evidence units, recommendations, or unresolved product choices do not make it ineligible. The user's research request authorizes the requested main-session evidence work.
 
-Keep the task in `planning`: write and verify its research, audit, or design evidence, commit task artifacts, and archive directly. Do not run `task.py start`, configure implementation context, require a Planning Seal, or wait for implementation approval. If independent subnode evidence is requested, freeze the dispatch plan in task artifacts and obtain explicit approval before any spawn/send; approval authorizes only the listed evidence work. If the evidence recommends a protected-target change, record the recommendation and create a separate change-bearing task before doing it.
+Keep the task in `planning`: write and verify its research, audit, or design evidence, commit task artifacts, and archive directly. Do not run `task.py start`, configure implementation context, require a Planning Seal, or wait for a second implementation approval. If independent subnode evidence is requested, freeze the dispatch plan in the task and obtain explicit approval before any spawn/send; that approval authorizes only the listed evidence dispatch. If the evidence recommends a protected-target change, record the recommendation and create a separate change-bearing task before doing it.
 
 ### Planning Artifacts
 
@@ -197,17 +240,17 @@ For complex work, create a Trellis task when the user's request authorizes that 
 <!-- Per-turn breadcrumb: shown when one resumable task exists without a direct session binding. -->
 
 [workflow-state:unbound_task]
-An existing task is assigned to the current developer, but this shell has no direct Trellis session binding. Do not create a duplicate task. Continue reading and working from the existing task artifacts; before any lifecycle write or closure, run the native `task.py start <task>` command once a direct session identity is available. Never edit `.trellis/.runtime/sessions/` manually.
+An existing developer-owned task has no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_task]
 
 <!-- Per-turn breadcrumb shown when multiple resumable tasks exist without a direct session binding. -->
 
 [workflow-state:unbound_ambiguous]
-Multiple active tasks belong to the current developer, but this shell has no direct Trellis session binding. Do not guess or create a duplicate task. Review the listed candidates and run `python3 ./.trellis/scripts/task.py start <task>` with the intended task once a direct session identity is available.
+Multiple developer-owned tasks have no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_ambiguous]
 
 [workflow-state:unbound_ambiguous-inline]
-Multiple active tasks belong to the current developer, but this Codex session has no direct Trellis session binding. Do not guess or create a duplicate task. Review the listed candidates and run `python3 ./.trellis/scripts/task.py start <task>` with the intended task once a direct session identity is available.
+Multiple developer-owned tasks have no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_ambiguous-inline]
 
 <!-- Per-turn breadcrumb: shown when the active task record cannot be read. -->
@@ -230,10 +273,11 @@ Preserve existing task fields and artifacts. If the correct status cannot be det
 
 [workflow-state:planning]
 Load `trellis-brainstorm`; stay in planning.
-For `analysis_only`, complete bounded evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without Planning Seal, implementation approval, or `task.py start`. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. A protected-target recommendation requires a separate change-bearing task.
-For change-bearing work, lightweight tasks may use `prd.md`; complex tasks need `design.md` and `implement.md` plus the Planning Seal before implementation review. Resolve only choices that change the requested scope, risk, owner, or acceptance; persist answers and continue the same planning loop.
+If `task.json.meta.delivery_mode = "analysis_only"` exactly, complete bounded evidence work regardless of complexity or cross-owner scope; the PRD names the evidence deliverable and protected-target no-change boundary. Do not run a Planning Seal or wait for implementation approval. A protected-target recommendation requires a separate change-bearing task.
+For `analysis_only`, complete the bounded evidence work regardless of complexity or cross-owner scope; its PRD names the evidence deliverable and protected-target no-change boundary. Do not run a Planning Seal or wait for implementation approval. For change-bearing work, lightweight tasks may use `prd.md`; complex tasks need `design.md` and `implement.md` plus the Planning Seal before implementation review. Research recommendations and open product choices may be recorded without sealing them as implementation decisions. Persist answers needed to define the requested work and continue the same planning loop.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Sub-agent mode: curate `implement.jsonl` and `check.jsonl` as spec/research manifests before start.
+Planned/change-bearing start requires native plan seal and matching later approval of this task's current material revision. Selecting context does not approve it.
 [/workflow-state:planning]
 
 <!-- Per-turn breadcrumb: shown throughout Phase 1 when Codex uses its default
@@ -244,10 +288,11 @@ Sub-agent mode: curate `implement.jsonl` and `check.jsonl` as spec/research mani
 
 [workflow-state:planning-inline]
 Load `trellis-brainstorm`; stay in planning.
-For `analysis_only`, complete bounded evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without Planning Seal, implementation approval, or `task.py start`. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. A protected-target recommendation requires a separate change-bearing task.
-For change-bearing work, lightweight tasks may use `prd.md`; complex tasks need `design.md` and `implement.md` plus the Planning Seal before implementation review. Resolve only choices that change the requested scope, risk, owner, or acceptance; persist answers and continue the same planning loop.
+If `task.json.meta.delivery_mode = "analysis_only"` exactly, complete bounded evidence work regardless of complexity or cross-owner scope; the PRD names the evidence deliverable and protected-target no-change boundary. Do not run a Planning Seal or wait for implementation approval. A protected-target recommendation requires a separate change-bearing task.
+For `analysis_only`, complete the bounded evidence work regardless of complexity or cross-owner scope; its PRD names the evidence deliverable and protected-target no-change boundary. Do not run a Planning Seal or wait for implementation approval. For change-bearing work, lightweight tasks may use `prd.md`; complex tasks need `design.md` and `implement.md` plus the Planning Seal before implementation review. Research recommendations and open product choices may be recorded without sealing them as implementation decisions. Persist answers needed to define the requested work and continue the same planning loop.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Inline mode: skip jsonl curation; Phase 2 reads artifacts/specs via `trellis-before-dev`.
+Planned/change-bearing start requires native plan seal and matching later approval of this task's current material revision. Selecting context does not approve it.
 [/workflow-state:planning-inline]
 
 ### Phase 2: Execute
@@ -281,6 +326,7 @@ Dispatch prompt starts with `Active task: <task path from task.py current>`. Rea
 Flow: `trellis-before-dev` -> edit -> `trellis-check` -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
 If implementation discovers a material unresolved decision, record `decision-needed`, run `task.py replan <task> "<reason>"`, and return to the planning frontier; native questions are planning-only.
 Do not dispatch implement/check sub-agents in inline mode.
+Explicit Channel independent-evidence subnodes remain available under the selected workflow; required independent evidence cannot be replaced by main-session pass claims.
 Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills.
 [/workflow-state:in_progress-inline]
 
@@ -336,7 +382,7 @@ When a user request matches one of these intents inside an active task, route fi
 
 ### Guardrails
 
-- An `analysis_only` task with bounded evidence and a protected-target no-change boundary may complete while `planning` regardless of complexity or cross-owner scope; any protected-target change requires a separate change-bearing task.
+- `analysis_only` tasks may complete in `planning` when their PRD names bounded evidence and a protected-target no-change boundary; complexity, cross-owner scope, multiple evidence units, and recommendations do not make them ineligible. Any protected-target change requires a separate change-bearing task.
 - Task creation approval is not implementation approval; change-bearing implementation waits for `task.py start` after artifact review.
 - PRD-only is valid for lightweight tasks; complex tasks need `design.md` + `implement.md`.
 - Planning must be persisted to task artifacts; checks must run before reporting completion.
@@ -391,7 +437,7 @@ The brainstorm skill will guide you to:
 - Keep `prd.md` focused on requirements and acceptance criteria
 - For complex tasks, produce `design.md` and `implement.md` before implementation starts
 - For read-heavy work, split long investigation into evidence units and persist each unit's conclusion or recovery point before continuing
-- Before change-bearing implementation review or `task.py start`, run the Planning Seal closure pass across task artifacts and lock targets, branches, dependencies, release, validation, rollback, dynamic-fact handling, and implementation decisions; `analysis_only` evidence work does not use this gate
+- Before change-bearing implementation review or `task.py start`, run the Planning Seal closure pass across task artifacts and lock targets, branches, dependencies, release, validation, rollback, dynamic-fact handling, and implementation decisions; `analysis_only` does not use this gate
 
 When considering a parent/child split:
 - Use a parent task when one request contains several independently verifiable deliverables.
@@ -493,7 +539,8 @@ Skip this step. Context is loaded directly by the `trellis-before-dev` skill in 
 
 This step applies only to change-bearing tasks. An eligible analysis-only task stays in `planning` and, after its evidence work is complete, continues directly to Phase 3.3 without running `task.py start`.
 
-After the Planning Seal closure pass and artifact review, flip the task status to `in_progress`:
+After the Planning Seal closure pass, artifact review, and applicable native
+plan seal/approve gates described above, flip the task status to `in_progress`:
 
 ```bash
 python3 ./.trellis/scripts/task.py start <task-dir>

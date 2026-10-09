@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Guard the published planning transition contract."""
 
+import hashlib
+import json
 from pathlib import Path
 import unittest
 
@@ -12,15 +14,30 @@ WORKFLOW = (
 
 
 class PlanningTransitionTests(unittest.TestCase):
+    def test_marketplace_index_matches_workflow_bytes(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        index = json.loads((root / "index.json").read_text(encoding="utf-8"))
+        template = next(
+            item for item in index["templates"]
+            if item["id"] == "codex-subnode-channel"
+        )
+        self.assertEqual(
+            hashlib.sha256((root / template["path"]).read_bytes()).hexdigest(),
+            template["sha256"],
+        )
+
     def test_planning_blocks_and_activation_agree(self) -> None:
         for state in ("planning", "planning-inline"):
             with self.subTest(state=state):
                 body = WORKFLOW.split(f"[workflow-state:{state}]\n", 1)[1].split(
                     f"[/workflow-state:{state}]", 1
                 )[0]
-                self.assertIn("For `analysis_only`, stay in planning", body)
-                self.assertIn("without Planning Seal, implementation approval", body)
-                self.assertIn("Before any requested subnode spawn/send", body)
+                self.assertIn('delivery_mode = "analysis_only"', body)
+                self.assertIn("regardless of complexity or cross-owner scope", body)
+                self.assertIn("archive without running `task.py start`", body)
+                self.assertIn("freeze the dispatch plan in task artifacts", body)
+                self.assertIn("explicit user approval", body)
+                self.assertIn("only the listed evidence work", body)
                 self.assertIn("change-bearing task", body)
                 self.assertIn("the Planning Seal are complete", body)
                 self.assertIn("user approves implementation", body)
@@ -29,7 +46,6 @@ class PlanningTransitionTests(unittest.TestCase):
 
     def test_subnode_profile_contract_is_explicit(self) -> None:
         for profile in (
-            "code_path",
             "docs_source",
             "fault_diagnosis",
             "correctness_test",
@@ -42,7 +58,8 @@ class PlanningTransitionTests(unittest.TestCase):
             self.assertIn(f"`{profile}`", WORKFLOW)
         for phrase in (
             ".trellis/agents/subnode-profiles.json",
-            "gpt-6-sol",
+            "gpt-6.1-sol",
+            "gpt-5.6-luna",
             "single-dispatch override",
             "symlinked",
             "never silently fall back",
@@ -52,6 +69,11 @@ class PlanningTransitionTests(unittest.TestCase):
         ):
             self.assertIn(phrase, WORKFLOW)
 
+        self.assertNotIn("| `code_path` |", WORKFLOW)
+        self.assertIn("`code_path` is not a shipped preset", WORKFLOW)
+        self.assertIn("| `docs_source` | `xhigh` |", WORKFLOW)
+        self.assertIn("`max` is outside the current Trellis effort contract", WORKFLOW)
+
     def test_fifo_queue_contract_is_explicit(self) -> None:
         for phrase in (
             "queue init",
@@ -60,9 +82,10 @@ class PlanningTransitionTests(unittest.TestCase):
             "dispatch-claim.json",
             "native `channel spawn`/`send`",
             "native Channel waiter after a durable barrier",
-            "complete report with no validator concerns",
-            "matching source",
-            "target recheck",
+            "complete report without validator concerns",
+            "source/protected-target recheck",
+            "healthy live predecessors do not block a refill",
+            "multi-target-dispatch.md",
             "`accepted` disposition",
             "An abandoned queue cannot claim further work",
             "partition every queued ID",
@@ -71,6 +94,9 @@ class PlanningTransitionTests(unittest.TestCase):
             "resident scheduler",
         ):
             self.assertIn(phrase, WORKFLOW)
+
+        fifo = WORKFLOW.split("### Persistent FIFO Dispatch Queue", 1)[1].split("## Plan Approval", 1)[0]
+        self.assertNotIn("all earlier items are accepted", fifo)
 
         phase = " ".join(
             WORKFLOW.split("#### 1.4 Activate Task", 1)[1]

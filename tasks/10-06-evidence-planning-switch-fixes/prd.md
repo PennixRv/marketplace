@@ -1,0 +1,2 @@
+# Evidence planning and task switching
+Root coordination 10-06-parallel-audit-dispatch-fixes version 1 was approved after its final summary. Own published planning/select/start/current-version approval and Channel unit/FIFO/multi-target procedure references. Preserve other selected workflows and native ownership. Validate existing Marketplace contracts, commit/push before parent pin, and close after consumer provenance checks.

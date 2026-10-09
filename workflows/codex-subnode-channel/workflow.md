@@ -10,7 +10,7 @@
 4. **Artifacts are durable** — the coordinator creates an immutable `brief.json`; the subnode appends its `worklog.md` and writes one pending-review `report.json` under the active task.
 5. **Completion is not acceptance** — the coordinator validates the report, rechecks material sources and protected targets, then records `accepted`, `rejected`, or `deferred` with its reason.
 6. **Channel is the lifecycle surface** — use its native create, spawn, send, and wait protocol. Wait for events rather than high-frequency polling; do not create a second waiter, use terminal JSON as the report, or add automatic retry/scheduling.
-7. **Evidence is unit-sized** — split read-heavy main-session or subnode work into independently useful evidence units when one bounded session cannot persist a conclusion. Each unit records its scope, minimal evidence, destination, stop condition, conclusion or blocker, unknowns, and recovery point before the next unit.
+7. **Evidence is unit-sized** — persist the unit-to-point mapping in the task's plan or matrix. Size by complexity, work, and evidence range. Combine points only when each is quick/simple and they are obviously related with shared context and a bounded total workload; preserve separate evidence/conclusions. Owner domains and slot counts do not determine unit count. New brief/queue admission requires a task-owned `unit_plan`; its structural gate cannot prove semantic coverage.
 
 ### Subnode Evidence Profiles
 
@@ -20,12 +20,12 @@ for non-implementation evidence profiles. Keep the same `subnode` identity,
 brief `lens`, report v2, and coordinator disposition for every profile; a
 profile changes dispatch configuration, not authority or acceptance semantics.
 
-The default mapping uses `gpt-6-sol` and these nine stable profile IDs:
+The shipped `default_model` is `gpt-6.1-sol`. `docs_source` overrides it with
+`gpt-5.6-luna`. These eight default profile IDs select bounded evidence work:
 
 | Profile | Default effort | Typical evidence unit |
 |---|---:|---|
-| `code_path` | `medium` | code-location and call-path tracing |
-| `docs_source` | `medium` | official documentation and source comparison |
+| `docs_source` | `xhigh` | extraction from identified official sources |
 | `fault_diagnosis` | `high` | root-cause and failure reconstruction |
 | `correctness_test` | `high` | contract and regression review |
 | `security_permission` | `high` | trust boundary and permission review |
@@ -33,6 +33,20 @@ The default mapping uses `gpt-6-sol` and these nine stable profile IDs:
 | `requirements_assumption` | `high` | requirements, ambiguity, and assumption audit |
 | `ux_accessibility` | `high` | interaction and accessibility review |
 | `evidence_synthesis` | `medium` | bounded cross-source synthesis |
+
+Ordinary code-location and call-path lookup stays in the main session;
+`code_path` is not a shipped preset. When independent call-chain evidence is
+needed, select `correctness_test`, `fault_diagnosis`, or `architecture_compat`
+with that specific brief lens.
+
+Use `docs_source` for extraction from known sources. A version conflict,
+interface-contract judgment, or disputed source requires an explicit
+`gpt-6.1-sol` / `high` override. Keep judgment profiles on Sol; increase to
+`xhigh` when conflicting evidence, cross-layer reasoning, or material risk
+justifies it. Luna may organize already-verified facts through an explicit
+override; model selection does not transfer coordinator acceptance authority.
+Do not introduce automatic model fallback, effort escalation, or a default
+`max` effort; `max` is outside the current Trellis effort contract.
 
 Projects may add or remove profile IDs while preserving the required
 `reasoning_effort` values (`medium`, `high`, or `xhigh`). A profile may provide
@@ -44,7 +58,10 @@ profile effort. Unknown, missing, malformed, symlinked, or non-Codex profile
 configuration is a dispatch error; never silently fall back.
 
 `xhigh` requires a concrete non-empty `--reasoning-effort-reason` tied to the
-evidence unit. The reason is recorded with the resolved values. The worker
+evidence unit. This also applies to Luna: the reason may explain that `xhigh`
+is its lowest selected effort for a bounded source-extraction unit, without
+claiming that ordinary extraction is complex. The reason is recorded with
+the resolved values. The worker
 still uses the shared Codex configuration window; this workflow does not
 promise a temporary main-session model or context override and does not claim
 provider-side effective effort when the adapter cannot observe it.
@@ -80,18 +97,26 @@ retried. A new attempt requires a new brief and subnode ID.
 The main session fills available guard capacity in queue order, then uses one
 native Channel waiter after a durable barrier. Terminal release of a physical
 slot does not itself authorize a replacement. Before every replacement, the
-coordinator rechecks every dispatched item: only a native terminal event,
-complete report with no validator concerns, matching source and protected
-target recheck, and a single written `accepted` disposition authorize the next
-FIFO item. `blocked`, `incomplete`, `rejected`, validator concern, capacity
-rejection, missing event, conflicting receipt, or an unresolvable reservation
-pauses the whole queue.
+coordinator checks dispatched items for failure, conflict, and unresolved
+terminal state. A healthy still-running worker need not finish. For the released
+unit, a native terminal event, complete report without validator concerns,
+source/protected-target recheck, and a create-once `accepted` disposition plus
+verified native capacity authorize the next unclaimed FIFO item immediately.
+Do not wait for a whole batch with `--all` before ordinary refill.
+Local report delivery/validation failures isolate the affected unit. Preserve
+its attempt and rejected/deferred evidence; it supplies no accepted-slot credit.
+Other independently accepted units still authorize FIFO refill while healthy
+workers run. Identity, source/protected-target, permission/security or capacity
+conflicts, missing terminal evidence, conflicting receipts and unresolvable
+reservations pause global admission until reconciled. Do not convert a local
+failure into either acceptance or a global retry-only interval.
 
 On interruption or resume, reconstruct state from the original Channel events,
 claims, live PID/reservation, reports, and dispositions. An existing claim or
 attempt is never re-dispatched merely because its process is gone. The
 coordinator continues only with items that have no attempt facts and only when
-all earlier items are accepted. The main session must remain present; this is
+the attempted prefix is reconciled and each replacement has accepted-slot
+credit; healthy live predecessors do not block a refill. The main session must remain present; this is
 not a background scheduler. To stop permanently, write one abandonment marker
 and partition every queued ID between persisted dispatch claims and the
 remaining unclaimed items. A claim counts as an attempted dispatch even if the
@@ -109,9 +134,48 @@ edit queue items. A different order requires a new work ID. Waiting uses the
 existing durable barrier/`afterSeq` path; high-frequency polling, a second
 waiter, automatic retry, and a resident scheduler remain prohibited.
 
+Read `trellis-channel`'s `references/multi-target-dispatch.md` for the stable
+one-host multi-target procedure. Initial fill uses all actual available guard
+slots in FIFO order; record any necessary resource/dependency exception.
+Coalesce eligible init/spawn/send actions into one native host invocation with
+per-target receipts and fail-stop handling. Multiple host tool calls inside one
+orchestration cell are still multiple calls. The native helper enforces the
+earliest unclaimed item; it does not mirror worker state or schedule replacements.
+
 This workflow assumes Codex's default `codex.dispatch_mode: inline`. Do not
 select `auto` or `sub-agent` for this workflow: those modes seed native-agent
-context and belong to the Native Trellis Workflow instead.
+context and belong to the Native Trellis Workflow instead. Inline mode does
+not prohibit explicit Channel evidence. Required independent evidence cannot
+be replaced by unsupported main-session pass claims.
+
+## Plan Approval And Task Selection
+
+Classify task meta explicitly: `execution_class=direct|planned` and
+`delivery_mode=change_bearing|analysis_only`. For planned/change-bearing work,
+close decisions and required artifacts, run native `task.py plan seal <task>`,
+present the current material plan, and stop before implementation. Only a later
+explicit approval for this task's current sealed revision authorizes native
+`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`,
+then start. Initial delivery requests, parent-task approval, and design answers
+do not qualify. The manifest override never bypasses approval. The native
+record checks structure; chat authenticity remains coordinator-owned.
+
+Material scope, owner, risk, public behavior, or acceptance changes require
+native replan, a new seal, presentation, and later approval. Resealing a sealed
+planning task declares a new material revision. Sealed plan documents are
+byte-frozen and checked by content digest; keep progress and non-material
+corrections in unsealed execution records. A changed plan must be resealed and
+approved before start. Old unclassified planning tasks need
+classification once; existing in-progress tasks are not reset. Direct small
+work and eligible analysis-only work keep their existing shortest paths.
+
+Use native `task.py select <task>` for context only, preserving phase and branch
+without after_start hooks or implementation authority. `create --no-start`
+keeps the prior pointer. Save the old checkpoint; with live Channel work, pause
+refills and drain all already dispatched nodes and reservations via
+`trellis-channel`'s multi-target procedure, preserving unclaimed work and the
+old phase. Do not automatically kill/retry or restart a user-stopped task.
+Ordinary continue/compaction retains its checkpoint fast path.
 
 ## Trellis System
 
@@ -143,22 +207,15 @@ child task only when the unit has an independent owner, lifecycle, and acceptanc
 contract. A subnode is an explicit independent-evidence choice, not a way to
 offload every long read.
 
-### Semantic RecoveryBrief
+### Continuation and Compaction
 
-Trellis task artifacts remain the semantic record. The low-level
-`ctx_recovery_brief` provider is an optional task-local evidence projection for
-an already-started task, a material recorded change, explicit inspection or
-repair, or a user-requested pause/finish. Do not create one for ordinary edits,
-tests, diffs, compaction, resume, or a subnode event/report. It is never a
-formal-handoff gate, a source-session exit signal, or a replacement for the
-Pennix session-handoff Semantic Handoff Capsule and its explicit AgentMemory
-write and exact project/type/content retrieval-verification step. For a formal
-handoff, the `agentmemory_required` path's authenticated memory-id proof and
-handoff receipt record source convergence; local task artifacts remain
-authoritative. A taskless handoff seals its session boundary without creating
-a task; a task-bearing handoff retains native ownership barriers. The explicit
-`core_only` mode is the offline exception. A RecoveryBrief may be included as
-corroborating task evidence only.
+Reuse the current conversation or sufficient compaction checkpoint when root,
+task, phase, authorization and pending action are known. An ordinary continue
+resumes that action without repeated startup, task/Git/history or handoff
+validation. Query only missing/conflicting facts for a fresh session, changed
+target or explicit inspection. Native protected writes retain owner identity
+and ownership checks. Never repeat or re-answer consumed pre-compaction user
+input; handle genuinely new input normally. No recovery cache or extra waiter.
 
 ### Independent Evidence
 
@@ -215,25 +272,25 @@ The active task record cannot be read. Do not create or activate another task. R
 [/workflow-state:task_error]
 
 [workflow-state:unbound_task]
-An existing task is assigned to the current developer, but this shell has no direct Trellis session binding. Do not create a duplicate task. Read the existing task artifacts and run the native `task.py start <task>` command once a direct session identity is available before lifecycle writes or closure.
+An existing developer-owned task has no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_task]
 
 [workflow-state:unbound_ambiguous]
-Multiple active tasks belong to the current developer, but this shell has no direct Trellis session binding. Do not guess or create a duplicate task. Review the candidates and bind the intended task with the native `task.py start <task>` command once a direct session identity is available.
+Multiple developer-owned tasks have no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_ambiguous]
 
 [workflow-state:unbound_ambiguous-inline]
-Multiple active tasks belong to the current developer, but this Codex inline session has no direct Trellis session binding. Do not guess or create a duplicate task. Review the candidates and bind the intended task with the native `task.py start <task>` command once a direct session identity is available.
+Multiple developer-owned tasks have no direct session binding. Inspect native `task.py current --json`: a non-null `session_source` means direct identity is already available; an unbound source still means no task binding. Select the existing task from the user's explicit intent; do not guess or create a duplicate. Resume its planning/status gates first. Run native `task.py start <task>` only when its activation contract permits it, after the Planning Seal and implementation authorization for a planning change-bearing task. An eligible `analysis_only` task stays in planning without start. If identity is absent, report that separately; never invent an identity or edit runtime pointers.
 [/workflow-state:unbound_ambiguous-inline]
 
 [workflow-state:planning]
-For `analysis_only`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without Planning Seal, implementation approval, or `task.py start`. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work.
-For change-bearing tasks, stay in planning until required artifacts and the Planning Seal are complete and the user approves implementation; then run native `task.py start` before implementation. The main session performs ordinary work directly; report status is never acceptance.
+Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
-For `analysis_only`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without Planning Seal, implementation approval, or `task.py start`. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work.
-For change-bearing tasks, stay in planning until required artifacts and the Planning Seal are complete and the user approves implementation; then run native `task.py start` before implementation. The main session performs ordinary work directly; report status is never acceptance.
+Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]

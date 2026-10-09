@@ -13,6 +13,33 @@
 
 ---
 
+## Plan Approval And Task Selection
+
+Classify task meta explicitly: `execution_class=direct|planned` and
+`delivery_mode=change_bearing|analysis_only`. For planned/change-bearing work,
+close decisions and required artifacts, run native `task.py plan seal <task>`,
+present the current material plan, and stop before implementation. Only a later
+explicit approval for this task's current sealed revision authorizes native
+`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`,
+then start. Initial delivery requests, parent-task approval, and design answers
+do not qualify. The manifest override never bypasses approval. The native
+record checks structure; chat authenticity remains coordinator-owned.
+
+Material scope, owner, risk, public behavior, or acceptance changes require
+native replan, a new seal, presentation, and later approval. Resealing a sealed
+planning task declares a new material revision; wording/formatting/progress
+notes do not automatically invalidate it. Old unclassified planning tasks need
+classification once; existing in-progress tasks are not reset. Direct small
+work and eligible analysis-only work keep their existing shortest paths.
+
+Use native `task.py select <task>` for context only, preserving phase and branch
+without after_start hooks or implementation authority. `create --no-start`
+keeps the prior pointer. Save the old checkpoint; with live Channel work, pause
+refills and drain all already dispatched nodes and reservations via
+`trellis-channel`'s multi-target procedure, preserving unclaimed work and the
+old phase. Do not automatically kill/retry or restart a user-stopped task.
+Ordinary continue/compaction retains its checkpoint fast path.
+
 ## Trellis System
 
 ### Developer Identity
@@ -110,15 +137,17 @@ Complex task: ask the user if you can create a Trellis task and enter the planni
 - 1.5 Completion criteria
 
 [workflow-state:planning]
+Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
 Load `trellis-brainstorm`; stay in planning.
-Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-gates`, batch only independent frontier questions, and stay in planning.
+Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Channel-worker mode: curate `implement.jsonl` and `check.jsonl` as spec/research manifests before start.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
+Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
 Load `trellis-brainstorm`; stay in planning.
-Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-gates`, batch only independent frontier questions, and stay in planning.
+Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Inline mode: skip jsonl curation; Phase 2 reads artifacts/specs via `trellis-before-dev`.
 [/workflow-state:planning-inline]
@@ -210,7 +239,7 @@ Load `trellis-brainstorm` and write user requirements into `prd.md`. Complex tas
 
 Requirements:
 
-- Record `decision-needed` items. When at least two independent material frontier decisions exist, load `pennix-decision-gates` and batch up to three; otherwise ask only the necessary dependency question.
+- Record `decision-needed` items. When at least two independent material frontier decisions exist, load `pennix-decision-grill` and batch up to three; otherwise ask only the necessary dependency question.
 - Prefer researching over asking for information that can be discovered.
 - Update task artifacts immediately when requirements change.
 - Split broad work into parent task + child tasks.
