@@ -39,9 +39,9 @@ class PlanningTransitionTests(unittest.TestCase):
                 self.assertIn("explicit user approval", body)
                 self.assertIn("only the listed evidence work", body)
                 self.assertIn("change-bearing task", body)
-                self.assertIn("the Planning Seal are complete", body)
+                self.assertIn("Planning Seal is closed", body)
                 self.assertIn("user approves implementation", body)
-                self.assertIn("then run native `task.py start` before implementation", body)
+                self.assertIn("native `python3 ./.trellis/scripts/task.py start", body)
                 self.assertNotIn("Stay in planning. Create or refine", body)
 
     def test_subnode_profile_contract_is_explicit(self) -> None:

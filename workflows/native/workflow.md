@@ -203,7 +203,8 @@ Phase 3: Finish  → verify, update spec, commit, and wrap up
 ### Request Triage
 
 - Direct small work: for a clearly bounded, single-surface operation with an immediate verification path, proceed without creating a Trellis task. Apply normal safety rules. If discovery expands the scope or reveals a design, ownership, release, or durable-record need, stop and create a task before continuing.
-- Task creation does not grant implementation authority. A request for bounded `analysis_only` research authorizes the requested main-session evidence work; change-bearing implementation remains gated.
+- Complex task: ask whether you may create a Trellis task and enter planning. If the user says no, do not do broad inline implementation; explain, clarify scope, or suggest a smaller split.
+- User approval to create a task is not approval to start implementation. Planning still happens first.
 
 ### Analysis-only tasks
 
@@ -234,7 +235,7 @@ Create new children with `task.py create "<title>" --slug <name> --parent <paren
 [workflow-state:no_task]
 No active task. First classify the current turn. Direct small work with a clear single owner and immediate verification may proceed without a Trellis task under normal safety rules.
 If scope expands or requires design, ownership, release, credentials, or a durable record, create a Trellis task before continuing.
-For complex work, create a Trellis task when the user's request authorizes that task; task creation does not authorize implementation. Ask only when task creation itself was not requested or authorized.
+Complex task: ask the user if you can create a Trellis task and enter the planning phase. If the user says no, explain, clarify scope, or suggest a smaller split.
 [/workflow-state:no_task]
 
 <!-- Per-turn breadcrumb: shown when one resumable task exists without a direct session binding. -->
