@@ -14,6 +14,45 @@ WORKFLOW = (
 
 
 class PlanningTransitionTests(unittest.TestCase):
+    def test_dispatch_boundaries_follow_selected_workflow(self) -> None:
+        body = " ".join(WORKFLOW.split("### Dispatch Boundaries", 1)[1].split(
+            "## Plan Approval", 1
+        )[0].split())
+        for phrase in (
+            "main session implements and checks inline",
+            "does not dispatch native implement/check agents",
+            "Channel implementation/check workers",
+            "Explicitly approved Channel subnodes supply independent evidence",
+            "separately selected workflow variant",
+            "prevent recursive agent dispatch",
+            "does not disable Channel evidence",
+            "message transport",
+        ):
+            self.assertIn(phrase, body)
+
+    def test_planning_writes_classify_and_protect_product_targets(self) -> None:
+        body = " ".join(WORKFLOW.split("### Writing Targets", 1)[1].split(
+            "[workflow-state:no_task]", 1
+        )[0].split())
+        for phrase in (
+            "Before any write, classify the target",
+            "task-owned planning artifact",
+            "native task-state operation",
+            "protected product target",
+            "product source, tests, templates, configuration and installed assets",
+            "sealed, later explicitly approved, and started",
+            "native `task.py start`",
+            "Record proposed product tests in `implement.md`",
+            "not a runtime interceptor",
+        ):
+            self.assertIn(phrase, body)
+        for state in ("planning", "planning-inline"):
+            state_body = WORKFLOW.split(f"[workflow-state:{state}]\n", 1)[1].split(
+                f"[/workflow-state:{state}]", 1
+            )[0]
+            self.assertIn("Before any write, apply Writing Targets", state_body)
+            self.assertIn("seal, later approval and native start", state_body)
+
     def test_marketplace_index_matches_workflow_bytes(self) -> None:
         root = Path(__file__).resolve().parents[1]
         index = json.loads((root / "index.json").read_text(encoding="utf-8"))

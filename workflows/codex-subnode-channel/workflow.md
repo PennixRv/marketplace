@@ -148,6 +148,18 @@ context and belong to the Native Trellis Workflow instead. Inline mode does
 not prohibit explicit Channel evidence. Required independent evidence cannot
 be replaced by unsupported main-session pass claims.
 
+### Dispatch Boundaries
+
+In this workflow, the main session implements and checks inline; it does not
+dispatch native implement/check agents or Channel implementation/check workers.
+Explicitly approved Channel subnodes supply independent evidence under the
+brief/report/acceptance contract above. Channel-driven implementation/check
+dispatch belongs to a separately selected workflow variant, not to this one.
+The Codex Channel worker disables its own native multi-agent features to prevent
+recursive agent dispatch; that worker setting does not disable Channel evidence
+from the main session. CLI message transport described as "inline" is unrelated
+to `codex.dispatch_mode: inline`.
+
 ## Plan Approval And Task Selection
 
 Except for clearly bounded research, screen consequential user-owned choices
@@ -283,6 +295,20 @@ Phase 3: Finish  -> verify, retain conclusions, update specs, commit, and wrap u
 - `research/` — attributable external or local findings.
 - `subnodes/<work-id>/<subnode-id>/` — a coordinator brief, append-only node worklog, and pending-review report when independent evidence was expressly requested.
 
+### Writing Targets
+
+Before any write, classify the target as a task-owned planning artifact, native
+task-state operation, or protected product target. Use the native task interface
+for task-state operations. For planned/change-bearing work in planning, write
+planning artifacts only: product source, tests, templates, configuration and
+installed assets remain protected until the current plan is sealed, later
+explicitly approved, and started through native `task.py start`. Record proposed
+product tests in `implement.md` or the acceptance plan instead of editing them.
+This is a writing procedure under the existing phase gate, not a runtime
+interceptor. Analysis-only research retains its protected-target no-change
+boundary; expressly approved subnode evidence retains its assigned artifact
+boundary.
+
 [workflow-state:no_task]
 No active task. Classify the request. Direct small work with a clear single owner and immediate verification may proceed in the main session without a Trellis task or subnode under normal safety rules. If scope expands or requires design, ownership, release, credentials, or a durable record, create a task before continuing; do not promote an unrecorded conclusion as task fact.
 [/workflow-state:no_task]
@@ -305,11 +331,13 @@ Multiple developer-owned tasks have no direct session binding. Inspect native `t
 
 [workflow-state:planning]
 Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until seal, later approval and native start.
 For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
 Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until seal, later approval and native start.
 For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning-inline]
 
@@ -366,6 +394,9 @@ inline Codex execution: do not curate native-agent JSONL or dispatch native
 implementation/check workers. Plan any optional subnode as evidence work with
 protected targets, an independence reason, evidence method, stop conditions,
 and a deadline.
+
+Apply Writing Targets before preparing tests or other writes. Planning records
+the intended product changes and verification; it does not implement them.
 
 #### 1.4 Activate Task `[required · once]`
 
