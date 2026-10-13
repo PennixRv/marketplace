@@ -91,7 +91,7 @@
       "name": "Native Trellis Workflow",
       "description": "Default Trellis Plan / Execute / Finish workflow with native sub-agent and inline platform branches",
       "path": "workflows/native/workflow.md",
-      "sha256": "a8e3b73282c8ca47f0acaa188f8f40add0afb040ee8ffbdcc3aefcf17760b366",
+      "sha256": "8c3e67d70bf3e52c8c6efd90d3b776bd6aa01ea6d9fa32160beae239f3ddb7f2",
       "tags": [
         "workflow",
         "native",
