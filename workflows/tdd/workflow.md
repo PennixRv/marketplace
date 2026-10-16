@@ -16,18 +16,30 @@
 
 Classify task meta explicitly: `execution_class=direct|planned` and
 `delivery_mode=change_bearing|analysis_only`. For planned/change-bearing work,
-close decisions and required artifacts, run native `task.py plan seal <task>`,
-present the current material plan, and stop before implementation. Only a later
-explicit approval for this task's current sealed revision authorizes native
-`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`,
-then start. Initial delivery requests, parent-task approval, and design answers
-do not qualify. The manifest override never bypasses approval. The native
-record checks structure; chat authenticity remains coordinator-owned.
+close decisions and required artifacts, then present the final plan: goal,
+scope, actual targets/owners, decisions, acceptance/validation, risks,
+release/install impact, rollback, and completion boundary. Before sealing, use
+`pennix-decision-grill` under the host interaction contract to ask whether to
+**seal and approve proceeding** or **supplement/revise the plan**. Explicit
+combined approval authorizes only that displayed plan: run native
+`task.py plan seal <task>`, then
+`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`
+using the returned revision, then start. Do not repeat the same implementation
+approval. Initial delivery requests, parent-task approval, and ordinary design
+answers do not qualify. The manifest override never bypasses approval. The
+native record checks structure; chat authenticity remains coordinator-owned.
 
-Material scope, owner, risk, public behavior, or acceptance changes require
-native replan, a new seal, presentation, and later approval. Resealing a sealed
-planning task declares a new material revision; wording/formatting/progress
-notes do not automatically invalidate it. Old unclassified planning tasks need
+Feedback keeps planning until the revised plan is presented and confirmed.
+A seal-only request permits only sealing. Explicit equivalent free text is
+valid; empty/cancelled replies and recommended options are not approval. Inspect
+failed command receipts and current state; do not blindly repeat a successful
+seal. Reuse existing sufficient authorization on ordinary resume.
+
+Material scope, owner, risk, public behavior, deployment path, or acceptance changes require
+renewed presentation and final confirmation before seal/approve/start. Use
+native replan only when already in progress. Resealing a sealed
+planning task declares a new material revision; sealed documents remain byte-frozen.
+Keep progress and non-material corrections in unsealed execution records. Old unclassified planning tasks need
 classification once; existing in-progress tasks are not reset. Direct small
 work and eligible analysis-only work keep their existing shortest paths.
 
@@ -218,7 +230,7 @@ Complex task: ask the user if you can create a Trellis task and enter the planni
 <!-- Per-turn breadcrumb: shown throughout Phase 1 (status='planning') -->
 
 [workflow-state:planning]
-Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+Present the final plan before sealing, then ask whether to seal and approve proceeding or supplement/revise; explicit combined approval authorizes native seal/approve/start for that same plan. Reuse existing sufficient authorization; select only binds context.
 Load `trellis-brainstorm`; stay in planning.
 Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 TDD planning gate: record observable behavior slices, the public interface under test, and mock boundaries before `task.py start`.
@@ -233,7 +245,7 @@ Sub-agent mode: curate `implement.jsonl` and `check.jsonl` as spec/research mani
      into a sub-agent. -->
 
 [workflow-state:planning-inline]
-Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
+Present the final plan before sealing, then ask whether to seal and approve proceeding or supplement/revise; explicit combined approval authorizes native seal/approve/start for that same plan. Reuse existing sufficient authorization; select only binds context.
 Load `trellis-brainstorm`; stay in planning.
 Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 TDD planning gate: record observable behavior slices, the public interface under test, and mock boundaries before `task.py start`.

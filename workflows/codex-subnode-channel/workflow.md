@@ -173,16 +173,28 @@ frontier may mean missing evidence, not a closed plan.
 
 Classify task meta explicitly: `execution_class=direct|planned` and
 `delivery_mode=change_bearing|analysis_only`. For planned/change-bearing work,
-close decisions and required artifacts, run native `task.py plan seal <task>`,
-present the current material plan, and stop before implementation. Only a later
-explicit approval for this task's current sealed revision authorizes native
-`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`,
-then start. Initial delivery requests, parent-task approval, and design answers
-do not qualify. The manifest override never bypasses approval. The native
-record checks structure; chat authenticity remains coordinator-owned.
+close decisions and required artifacts, then present the final plan: goal,
+scope, actual targets/owners, decisions, acceptance/validation, risks,
+release/install impact, rollback, and completion boundary. Before sealing, use
+`pennix-decision-grill` under the host interaction contract to ask whether to
+**seal and approve proceeding** or **supplement/revise the plan**. Explicit
+combined approval authorizes only that displayed plan: run native
+`task.py plan seal <task>`, then
+`task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`
+using the returned revision, then start. Do not repeat the same implementation
+approval. Initial delivery requests, parent-task approval, and ordinary design
+answers do not qualify. The manifest override never bypasses approval. The
+native record checks structure; chat authenticity remains coordinator-owned.
 
-Material scope, owner, risk, public behavior, or acceptance changes require
-native replan, a new seal, presentation, and later approval. Resealing a sealed
+Feedback keeps planning until the revised plan is presented and confirmed.
+A seal-only request permits only sealing. Explicit equivalent free text is
+valid; empty/cancelled replies and recommended options are not approval. Inspect
+failed command receipts and current state; do not blindly repeat a successful
+seal. Reuse existing sufficient authorization on ordinary resume.
+
+Material scope, owner, risk, public behavior, deployment path, or acceptance changes require
+renewed presentation and final confirmation before seal/approve/start. Use
+native replan only when already in progress. Resealing a sealed
 planning task declares a new material revision. Sealed plan documents are
 byte-frozen and checked by content digest; keep progress and non-material
 corrections in unsealed execution records. A changed plan must be resealed and
@@ -199,7 +211,7 @@ owner, acceptance, and verification in the unsealed execution record; the
 request authorizes only that exact addition. If any condition is false or
 unclear, immediately explain its impact and recommendation, stop dependent
 actions and record `decision-needed`. Run native `task.py replan` to planning,
-then use the blocking question tool and the new-seal/later-approval path.
+then use the blocking question tool and return to final plan review before sealing.
 
 Use native `task.py select <task>` for context only, preserving phase and branch
 without after_start hooks or implementation authority. `create --no-start`
@@ -301,8 +313,8 @@ Before any write, classify the target as a task-owned planning artifact, native
 task-state operation, or protected product target. Use the native task interface
 for task-state operations. For planned/change-bearing work in planning, write
 planning artifacts only: product source, tests, templates, configuration and
-installed assets remain protected until the current plan is sealed, later
-explicitly approved, and started through native `task.py start`. Record proposed
+installed assets remain protected until the displayed plan is explicitly
+approved, sealed, and started through native `task.py start`. Record proposed
 product tests in `implement.md` or the acceptance plan instead of editing them.
 This is a writing procedure under the existing phase gate, not a runtime
 interceptor. Analysis-only research retains its protected-target no-change
@@ -330,22 +342,24 @@ Multiple developer-owned tasks have no direct session binding. Inspect native `t
 [/workflow-state:unbound_ambiguous-inline]
 
 [workflow-state:planning]
-Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
-Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until seal, later approval and native start.
+Planned/change-bearing work presents the final plan before sealing, then asks through grill whether to seal and approve proceeding or supplement/revise. Explicit combined approval authorizes native seal/approve/start for the same displayed plan; reuse existing sufficient authorization. Select only binds context.
+Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until explicit plan approval, seal and native start.
 For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
-Planned/change-bearing start requires native plan seal and matching later approval for this task's current material revision; select only binds context.
-Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until seal, later approval and native start.
+Planned/change-bearing work presents the final plan before sealing, then asks through grill whether to seal and approve proceeding or supplement/revise. Explicit combined approval authorizes native seal/approve/start for the same displayed plan; reuse existing sufficient authorization. Select only binds context.
+Before any write, apply Writing Targets: classify the path and keep product source, tests, templates, configuration and installed assets protected; proposed tests belong in the task plan until explicit plan approval, seal and native start.
 For `task.json.meta.delivery_mode = "analysis_only"`, stay in planning: complete and verify evidence regardless of complexity or cross-owner scope, preserve the protected-target no-change boundary, commit task artifacts, and archive without running `task.py start`, a Planning Seal, or implementation approval. Before any requested subnode spawn/send, freeze the dispatch plan in task artifacts and obtain explicit user approval; it authorizes only the listed evidence work. For change-bearing tasks, stay in planning until required artifacts are complete, the Planning Seal is closed, and the user approves implementation; then the main session runs the native `python3 ./.trellis/scripts/task.py start <task-dir>` before implementation. The main session performs ordinary work directly; report status is never acceptance.
 [/workflow-state:planning-inline]
 
 [workflow-state:in_progress]
+After material replanning, present the revised final plan and obtain explicit confirmation before seal/approve/start; reuse existing sufficient authorization.
 Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, immediately explain its impact and recommendation, stop dependent actions, record `decision-needed`, run native `task.py replan` to planning, then use the blocking question tool and re-seal/approve. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress]
 
 [workflow-state:in_progress-inline]
+After material replanning, present the revised final plan and obtain explicit confirmation before seal/approve/start; reuse existing sufficient authorization.
 Deliver and verify in the main session. Before code changes, load `trellis-before-dev`; after changes, use `trellis-check` and the task acceptance criteria. A bounded, explicitly user-requested amendment that satisfies the in-progress conditions above stays in the current phase and is recorded in the unsealed execution record. If implementation exposes a material unresolved decision, or an amendment condition is false or unclear, immediately explain its impact and recommendation, stop dependent actions, record `decision-needed`, run native `task.py replan` to planning, then use the blocking question tool and re-seal/approve. Invoke a Channel subnode only for explicit independent evidence, then validate its report and recheck sources before recording a disposition. The main session alone commits and finishes.
 [/workflow-state:in_progress-inline]
 
@@ -372,7 +386,7 @@ evidence justifies a decision. After each answer, persist the decision,
 recalculate the planning frontier, and continue the same planning loop. Do not
 close the turn merely because a question was answered.
 
-For change-bearing work, run the Planning Seal closure pass before implementation review. Reconcile task metadata and artifacts, targets, branches, dependencies, release, validation, rollback, dynamic facts, and implementation decisions; material discoveries return the task to planning and invalidate the seal. `analysis_only` evidence work does not require a Planning Seal or a sealed implementation choice.
+For change-bearing work, run the Planning Seal closure pass before final plan review without invoking seal. Reconcile task metadata and artifacts, targets, branches, dependencies, release, validation, rollback, dynamic facts, and implementation decisions; material discoveries return the task to planning and invalidate the seal. `analysis_only` evidence work does not require a Planning Seal or a sealed implementation choice.
 
 #### 1.2 Research `[optional · repeatable]`
 
@@ -402,8 +416,10 @@ the intended product changes and verification; it does not implement them.
 
 For change-bearing tasks only, review the planning artifacts. A lightweight
 task needs a complete PRD; a complex task also needs its design and
-implementation plan. Once the Planning Seal is closed and the user approves
-implementation, run native `python3 ./.trellis/scripts/task.py start <task-dir>`;
+implementation plan. Present the final plan and ask whether to seal and approve
+proceeding or supplement/revise. Once the user approves implementation of that
+plan, run native seal/approve using its actual revision. After the Planning Seal
+is closed, run native `python3 ./.trellis/scripts/task.py start <task-dir>`;
 implementation begins only after status becomes `in_progress`. An eligible
 `analysis_only` task completes its bounded evidence and archives from planning
 without start.

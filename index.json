@@ -91,7 +91,7 @@
       "name": "Native Trellis Workflow",
       "description": "Default Trellis Plan / Execute / Finish workflow with native sub-agent and inline platform branches",
       "path": "workflows/native/workflow.md",
-      "sha256": "8c3e67d70bf3e52c8c6efd90d3b776bd6aa01ea6d9fa32160beae239f3ddb7f2",
+      "sha256": "ca7ca1ff40c6ba4e5b4e807c20b46a82a00e89df40158e3d306cbb3dc9428e41",
       "tags": [
         "workflow",
         "native",
@@ -104,7 +104,7 @@
       "name": "TDD Workflow",
       "description": "Trellis workflow variant that drives Phase 2 with one red / green / refactor behavior slice at a time",
       "path": "workflows/tdd/workflow.md",
-      "sha256": "915d07299f09da38b94fbb80b514db7aa214a3933a71e6b98464baded9d5e388",
+      "sha256": "b1a18c046c62ad86768c4c960f4a9a7b5c50949c4cd66f12c4e32267079a5a0f",
       "tags": [
         "workflow",
         "tdd",
@@ -117,7 +117,7 @@
       "name": "Codex Subnode Channel",
       "description": "Codex-first Trellis workflow: main-session delivery by default, with explicit Channel subnodes for durable independent evidence",
       "path": "workflows/codex-subnode-channel/workflow.md",
-      "sha256": "08e1c242aafb17b7915ed15902ebc1c4c3b5edad143927302bb851c044eaa479",
+      "sha256": "c515f8f9ec7bf3dc925c573082f8274d2089c0ba2c37761ee65feb440a291d4d",
       "tags": [
         "workflow",
         "codex",
@@ -132,7 +132,7 @@
       "name": "Channel-Driven Sub-Agent Dispatch",
       "description": "Trellis workflow variant where the main session coordinates implement/check workers through trellis channel",
       "path": "workflows/channel-driven-subagent-dispatch/workflow.md",
-      "sha256": "b60f813421a2604144bf529381e4785f0ffa3d877df1103c38064c77f39895ce",
+      "sha256": "723bdb1a187c11b06cdf51b404840e73c9cfd23b9a6678a2e5631dffddde22d2",
       "tags": [
         "workflow",
         "channel",

@@ -40,7 +40,7 @@ class PlanningTransitionTests(unittest.TestCase):
             "native task-state operation",
             "protected product target",
             "product source, tests, templates, configuration and installed assets",
-            "sealed, later explicitly approved, and started",
+            "explicitly approved, sealed, and started",
             "native `task.py start`",
             "Record proposed product tests in `implement.md`",
             "not a runtime interceptor",
@@ -51,19 +51,21 @@ class PlanningTransitionTests(unittest.TestCase):
                 f"[/workflow-state:{state}]", 1
             )[0]
             self.assertIn("Before any write, apply Writing Targets", state_body)
-            self.assertIn("seal, later approval and native start", state_body)
+            self.assertIn("explicit plan approval, seal and native start", state_body)
+            self.assertIn("presents the final plan before sealing", state_body)
+            self.assertIn("seal and approve proceeding or supplement/revise", state_body)
 
     def test_marketplace_index_matches_workflow_bytes(self) -> None:
         root = Path(__file__).resolve().parents[1]
         index = json.loads((root / "index.json").read_text(encoding="utf-8"))
-        template = next(
-            item for item in index["templates"]
-            if item["id"] == "codex-subnode-channel"
-        )
-        self.assertEqual(
-            hashlib.sha256((root / template["path"]).read_bytes()).hexdigest(),
-            template["sha256"],
-        )
+        for template in index["templates"]:
+            if template["type"] != "workflow":
+                continue
+            with self.subTest(workflow=template["id"]):
+                self.assertEqual(
+                    hashlib.sha256((root / template["path"]).read_bytes()).hexdigest(),
+                    template["sha256"],
+                )
 
     def test_planning_blocks_and_activation_agree(self) -> None:
         for state in ("planning", "planning-inline"):
