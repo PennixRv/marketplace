@@ -13,3 +13,4 @@
 - 完整 Python unittest 9 项通过，四份 workflow 的 index 摘要逐一匹配；根 fixture 7 项和真实离线集成 11 项通过。
 - 对照已批准方案复核四份工作流的规划入口、完整步骤与停止点、用户批准、任务隔离及 minor/major 分流。native 的执行步骤已去除按材料是否存在推断规划就绪的旧引导，改为读取原生 stage；其源镜像与 Trellis 打包模板一致。
 - 无新增依赖或公开接口；未改安装副本。本地提交后由原生 task 入口归档，根项目使用确定提交物化工作流并固定 gitlink；不 push、发布或合并。
+- owner 任务通过 Trellis 原生命令生成的 `.trellis/.runtime/sessions/` 不属于源码。该仓库原先没有 `.gitignore`，已增加仅忽略此运行态目录的规则；保留原生会话状态，不将其提交或手工改写。
