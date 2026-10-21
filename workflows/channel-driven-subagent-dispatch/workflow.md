@@ -23,7 +23,7 @@ release/install impact, rollback, and completion boundary. Before sealing, use
 `pennix-decision-grill` under the host interaction contract to ask whether to
 **seal and approve proceeding** or **supplement/revise the plan**. Explicit
 combined approval authorizes only that displayed plan: run native
-`task.py plan seal <task>`, then
+`task.py plan seal <task> --expected-digest <digest>`, then
 `task.py plan approve <task> --revision <n> --basis "<actual non-sensitive approval>"`
 using the returned revision, then start. Do not repeat the same implementation
 approval. Initial delivery requests, parent-task approval, and ordinary design
@@ -36,13 +36,11 @@ valid; empty/cancelled replies and recommended options are not approval. Inspect
 failed command receipts and current state; do not blindly repeat a successful
 seal. Reuse existing sufficient authorization on ordinary resume.
 
-Material scope, owner, risk, public behavior, deployment path, or acceptance changes require
-renewed presentation and final confirmation before seal/approve/start. Use
-native replan only when already in progress. Resealing a sealed
-planning task declares a new material revision; sealed documents remain byte-frozen.
-Keep progress and non-material corrections in unsealed execution records. Old unclassified planning tasks need
-classification once; existing in-progress tasks are not reset. Direct small
-work and eligible analysis-only work keep their existing shortest paths.
+Use `trellis-idea-to-closed-plan` as the sole planning entry; read the native stage from `task.py current --json` and task records. Trellis CLI alone writes lifecycle state; workflows do not duplicate the transition table.
+First route the request: independent deliverables create a new task and leave unrelated active tasks unchanged. If the relationship is unclear after bounded evidence, leave the current task unchanged and clarify with the user. Follow-up on a completed or archived task creates a new task; never reopen a terminal task.
+For planned/change-bearing work, form the complete plan before full-plan review: detailed, reasonable ordered steps, dependencies, actual repository and branch, deliverables, verification, risks, rollback, and one observable stop point with remaining work. Read `task.py plan digest <task>`, present that complete plan, and obtain explicit approval before native `task.py plan seal <task> --expected-digest <digest>`, approve, and start. Direct and analysis-only routes follow the sole entry's native contracts.
+Post-closure requests, changed conditions and implementation findings go to the model in `trellis-idea-to-closed-plan`. The baseline is the approved revision for planned work, or the accepted single-change, owner, verification and rollback contract for direct work. Even a small request that changes approved scope or acceptance is major. A minor change appends baseline revision/classification, trigger/evidence, rationale, affected steps or direct contract, implementation delta and verification to `execution.md`; preserve the current status/stage and continue. An explicitly user-requested addition to an `in_progress` task authorizes only that exact addition when the sole entry confirms minor.
+For major changes, or when bounded evidence cannot establish minor, stop dependent actions and record `decision-needed`. The sole entry selects the earliest affected stage and invokes native `task.py replan <task> --to <stage> "<reason>"` from in_progress or planning/plan_closed, invalidating the old seal/approval; loss of direct eligibility returns to intake. Complete full-plan review, present the revised plan and obtain explicit user approval before continuing. Unsealed planning uses native stage operations to return to the affected stage. Do not hand-edit `task.json` or implement semantic classification in a workflow.
 
 Use native `task.py select <task>` for context only, preserving phase and branch
 without after_start hooks or implementation authority. `create --no-start`
@@ -79,7 +77,7 @@ Common commands:
 ```bash
 python3 ./.trellis/scripts/task.py create "<title>" [--slug <name>] [--parent <dir>]
 python3 ./.trellis/scripts/task.py start <name>
-python3 ./.trellis/scripts/task.py replan <name> "<reason>"
+python3 ./.trellis/scripts/task.py replan <name> --to <stage> "<reason>"
 python3 ./.trellis/scripts/task.py current --source
 python3 ./.trellis/scripts/task.py finish
 python3 ./.trellis/scripts/task.py archive <name>
@@ -127,7 +125,7 @@ Phase 3: Finish  -> verify, update spec, commit, and wrap up
 - `implement.md` — execution plan, validation commands, review gates, and rollback points for complex tasks.
 - `implement.jsonl` / `check.jsonl` — worker context manifests. Put spec and research files here, not code files.
 
-Lightweight tasks may be PRD-only. Complex tasks must have `prd.md`, `design.md`, and `implement.md` before `task.py start`.
+Direct work may use the bounded PRD contract. Planned/change-bearing work needs the complete decision, design and execution plan, detailed ordered steps and unique stop point before review, presentation and native start; use the sole planning entry for field and stage requirements.
 
 ### Parent / Child Task Trees
 
@@ -150,16 +148,16 @@ Complex task: ask the user if you can create a Trellis task and enter the planni
 
 [workflow-state:planning]
 Present the final plan before sealing, then ask whether to seal and approve proceeding or supplement/revise; explicit combined approval authorizes native seal/approve/start for that same plan. Reuse existing sufficient authorization; select only binds context.
-Load `trellis-brainstorm`; stay in planning.
-Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
+Load `trellis-idea-to-closed-plan`; stay in planning.
+For planned/change-bearing work, form the complete plan with detailed ordered steps and a unique stop point before full-plan review; direct work follows direct_ready. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Channel-worker mode: curate `implement.jsonl` and `check.jsonl` as spec/research manifests before start.
 [/workflow-state:planning]
 
 [workflow-state:planning-inline]
 Present the final plan before sealing, then ask whether to seal and approve proceeding or supplement/revise; explicit combined approval authorizes native seal/approve/start for that same plan. Reuse existing sufficient authorization; select only binds context.
-Load `trellis-brainstorm`; stay in planning.
-Lightweight: `prd.md` can be enough. Complex: finish `prd.md`, `design.md`, and `implement.md`; ask for review before `task.py start`. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
+Load `trellis-idea-to-closed-plan`; stay in planning.
+For planned/change-bearing work, form the complete plan with detailed ordered steps and a unique stop point before full-plan review; direct work follows direct_ready. If `decision-needed` items or an unsealed decision graph remain, load `pennix-decision-grill`, batch only independent frontier questions, and stay in planning.
 Multi-deliverable scope: consider a parent task plus independently verifiable child tasks; dependencies must be written in child artifacts, not implied by tree position.
 Inline mode: skip jsonl curation; Phase 2 reads artifacts/specs via `trellis-before-dev`.
 [/workflow-state:planning-inline]
@@ -173,7 +171,7 @@ Inline mode: skip jsonl curation; Phase 2 reads artifacts/specs via `trellis-bef
 Channel-driven sub-agent dispatch is the default execution model for this workflow. The main session uses `trellis channel create`, `trellis channel spawn`, `trellis channel send`, and `trellis channel wait` to coordinate workers. Fall back to native host sub-agents only when the user explicitly asks for native dispatch or a host-only capability is required.
 
 [workflow-state:in_progress]
-If implementation discovers a material unresolved decision, record `decision-needed`, run `task.py replan <task> "<reason>"`, and return to the planning frontier; do not ask a native question during implementation.
+Route implementation findings through `trellis-idea-to-closed-plan`: minor appends `execution.md` and preserves status/stage; major stops dependent work, replans to the earliest affected stage, and requires full-plan review and explicit user approval. Clarify ambiguous relationships without changing the task; isolate independent and terminal follow-ups.
 Flow: channel-driven `implement` worker -> channel-driven `check` worker -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
 Main-session default: use `trellis channel spawn` with `.trellis/agents/implement.md` and `.trellis/agents/check.md`; do not use native Claude Task / Codex sub_agent unless explicitly requested or host-only tools require it.
 Worker context order: jsonl entries -> `prd.md` -> `design.md if present` -> `implement.md if present`. Use stable worker handles such as `implement`, `check`, `check-cx`, `check-cc`; read results with `trellis channel messages --raw` when precision matters.
@@ -181,7 +179,7 @@ Worker context order: jsonl entries -> `prd.md` -> `design.md if present` -> `im
 
 [workflow-state:in_progress-inline]
 Flow: `trellis-before-dev` -> edit -> channel-driven `check` worker -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
-If implementation discovers a material unresolved decision, record `decision-needed`, run `task.py replan <task> "<reason>"`, and return to the planning frontier; native questions are planning-only.
+Route implementation findings through `trellis-idea-to-closed-plan`: minor appends `execution.md` and preserves status/stage; major stops dependent work, replans to the earliest affected stage, and requires full-plan review and explicit user approval. Clarify ambiguous relationships without changing the task; isolate independent and terminal follow-ups.
 Inline implementation is allowed only when the user asked for it or the change is too small to justify a worker. After editing, prefer `trellis channel spawn --agent check` for independent review.
 Read context before editing: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills.
 [/workflow-state:in_progress-inline]
@@ -214,7 +212,7 @@ Code committed. Run `/trellis:finish-work`; if dirty, return to Phase 3.4 first.
 
 [Claude Code, Cursor, OpenCode, codex-sub-agent, Kiro, Gemini, Qoder, CodeBuddy, Copilot, Droid, Pi]
 
-- Planning or unclear requirements -> `trellis-brainstorm`.
+- Planning or unclear requirements -> `trellis-idea-to-closed-plan`.
 - `in_progress` implementation -> `trellis channel spawn --agent implement`.
 - `in_progress` quality check -> `trellis channel spawn --agent check`.
 - Repeated debugging -> `trellis-break-loop`; spec updates -> `trellis-update-spec`.
@@ -223,7 +221,7 @@ Code committed. Run `/trellis:finish-work`; if dirty, return to Phase 3.4 first.
 
 [codex-inline, Kilo, Antigravity, Devin]
 
-- Planning or unclear requirements -> `trellis-brainstorm`.
+- Planning or unclear requirements -> `trellis-idea-to-closed-plan`.
 - Before editing -> `trellis-before-dev`; after editing -> prefer a channel-driven `check` worker.
 - Repeated debugging -> `trellis-break-loop`; spec updates -> `trellis-update-spec`.
 
@@ -247,7 +245,7 @@ Run only `create` here. Do not also run `start`. `start` switches status to `in_
 
 #### 1.1 Requirement exploration `[required · repeatable]`
 
-Load `trellis-brainstorm` and write user requirements into `prd.md`. Complex tasks also need `design.md` and `implement.md`.
+Load `trellis-idea-to-closed-plan` and write user requirements into `prd.md`. Complex tasks also need `design.md` and `implement.md`.
 
 Requirements:
 

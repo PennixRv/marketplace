@@ -1,0 +1,56 @@
+{
+  "id": "closed-plan-workflow-alignment",
+  "name": "closed-plan-workflow-alignment",
+  "title": "Align Marketplace planning workflows with closed-plan state machine",
+  "description": "Update the four active Marketplace workflow sources and index to follow the approved Trellis-owned closed-plan stages and approval boundaries on main.",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "penn",
+  "assignee": "penn",
+  "createdAt": "2026-10-21",
+  "completedAt": null,
+  "branch": "main",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "execution_class": "planned",
+    "delivery_mode": "change_bearing",
+    "planning": {
+      "revision": 1,
+      "stage": "plan_closed",
+      "review_digest": "sha256:0a568f6e1b875cf36e4ca5f0f597823aa184183fcfe0e4b8304f51a9b4ab3a19",
+      "seal": {
+        "revision": 1,
+        "task_id": "closed-plan-workflow-alignment",
+        "task_name": "10-21-closed-plan-workflow-alignment",
+        "documents": [
+          "prd.md",
+          "design.md",
+          "implement.md"
+        ],
+        "document_digests": {
+          "prd.md": "bae65d233408845ba31c65872c4522373e9bd39ee1fe747d79cead102103f79a",
+          "design.md": "a47cc28141bc85f0f45af2f90a3d62d9e2fb71df1c49b523f35bc7cb72cf5072",
+          "implement.md": "039bc60be52d281181e2204d4f0e9ac47e44c730829ee70f5bc25ff896dddf75"
+        },
+        "execution_class": "planned",
+        "delivery_mode": "change_bearing",
+        "plan_digest": "sha256:0a568f6e1b875cf36e4ca5f0f597823aa184183fcfe0e4b8304f51a9b4ab3a19",
+        "sealed_at": "2026-10-21T06:31:42.795430+00:00"
+      },
+      "approved_revision": 1,
+      "approval_basis": "User explicitly approved the reviewed current plan revision in this session on 2026-10-21.",
+      "approved_at": "2026-10-21T06:31:42.853291+00:00"
+    }
+  }
+}

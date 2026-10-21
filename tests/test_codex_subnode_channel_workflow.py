@@ -89,12 +89,12 @@ class PlanningTransitionTests(unittest.TestCase):
         normalized_workflow = " ".join(WORKFLOW.split())
         for phrase in (
             "An explicitly user-requested addition to an `in_progress` task",
-            "same actual owner and",
-            "deployment/release path",
             "authorizes only that exact addition",
-            "If any condition is false or",
-            "record `decision-needed`",
-            "native `task.py replan`",
+            "when the sole entry confirms minor",
+            "preserve the current status/stage and continue",
+            "earliest affected stage",
+            "planning/plan_closed",
+            "native `task.py replan <task> --to <stage>",
         ):
             self.assertIn(phrase, normalized_workflow)
 
@@ -104,11 +104,34 @@ class PlanningTransitionTests(unittest.TestCase):
             )[0]
             self.assertIn("bounded, explicitly user-requested amendment", body)
             self.assertIn("amendment condition is false or unclear", body)
+            self.assertIn("execution.md", body)
+            self.assertIn("full-plan review and explicit user approval", body)
 
     def test_progressive_decision_entry_and_execution_escalation(self) -> None:
         # Prompt contract only; does not claim live model behavior.
-        for phrase in ("one material choice is sufficient", "dependency-ready", "then impact/priority", "missing evidence, not a closed plan", "blocking question tool", "immediately explain its impact"):
+        for phrase in ("one material choice is sufficient", "dependency-ready", "then impact/priority", "missing evidence, not a closed plan", "blocking question tool", "stop dependent actions"):
             self.assertIn(phrase, WORKFLOW)
+
+
+    def test_complete_plan_and_post_closure_routes_are_explicit(self) -> None:
+        for phrase in (
+            "sole planning entry",
+            "detailed, reasonable ordered steps",
+            "one observable stop point with remaining work",
+            "full-plan review",
+            "task.py plan digest <task>",
+            "--expected-digest <digest>",
+            "independent deliverables create a new task and leave unrelated active tasks unchanged",
+            "leave the current task unchanged and clarify with the user",
+            "never reopen a terminal task",
+            "Even a small request that changes approved scope or acceptance is major",
+            "loss of direct eligibility returns to intake",
+            "invalidating the old seal/approval",
+            "obtain explicit user approval before continuing",
+        ):
+            self.assertIn(phrase, WORKFLOW)
+        self.assertNotIn("trellis-brainstorm", WORKFLOW)
+        self.assertNotIn("native replan only when already in progress", WORKFLOW)
 
     def test_subnode_profile_contract_is_preserved(self) -> None:
         for profile in (
